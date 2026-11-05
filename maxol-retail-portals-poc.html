@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en-IE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maxol Retail – Admin, Retailer &amp; Vendor Portals POC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=Kaushan+Script&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --maxol-blue:#0563A0; --maxol-blue-2:#3888BD; --maxol-yellow:#FFD934;
+  --swirl-red:#E1251B; --swirl-orange:#F39200; --swirl-magenta:#C7628F; --swirl-purple:#6E3A8E;
+  --bg:#EEF4FA; --surface:#FFFFFF; --surface-2:#F6F9FC; --line:#DCE6F0;
+  --ink:#0C2740; --ink-2:#4A6278; --ink-3:#7F93A6;
+  --side:#044E80; --side-ink:#D7E8F5; --side-active:#FFD934;
+  --ok:#1E8E5A; --ok-bg:#E3F5EC; --warn:#B86E00; --warn-bg:#FFF2DA; --bad:#C62D24; --bad-bg:#FDE7E5;
+  --info:#0563A0; --info-bg:#E2EFF9; --muted-bg:#EEF1F4;
+  --shadow:0 1px 2px rgba(5,60,100,.06),0 4px 14px rgba(5,60,100,.06);
+  --r-lg:14px; --r-md:10px; --r-sm:6px;
+  --display:"Nunito",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --body:"Nunito Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --script:"Kaushan Script","Brush Script MT",cursive;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#071A2B; --surface:#0D2438; --surface-2:#112C44; --line:#1D3E5B;
+  --ink:#EAF3FB; --ink-2:#A9C0D4; --ink-3:#7C96AD; --side:#04233D; --side-ink:#BFD6EA;
+  --ok:#4CC88C; --ok-bg:#0F3626; --warn:#F2B347; --warn-bg:#3A2A0C; --bad:#FF7A70; --bad-bg:#401715;
+  --info:#6DB5EA; --info-bg:#0E3150; --muted-bg:#1A3146; --shadow:0 1px 2px rgba(0,0,0,.3);
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#071A2B; --surface:#0D2438; --surface-2:#112C44; --line:#1D3E5B;
+  --ink:#EAF3FB; --ink-2:#A9C0D4; --ink-3:#7C96AD; --side:#04233D; --side-ink:#BFD6EA;
+  --ok:#4CC88C; --ok-bg:#0F3626; --warn:#F2B347; --warn-bg:#3A2A0C; --bad:#FF7A70; --bad-bg:#401715;
+  --info:#6DB5EA; --info-bg:#0E3150; --muted-bg:#1A3146; --shadow:0 1px 2px rgba(0,0,0,.3);
+  color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);margin:0;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--maxol-yellow);outline-offset:2px;border-radius:4px}
+img{max-width:100%}
+a{color:var(--info)}a.btn{text-decoration:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Login ---------- */
+#login{position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:1.1fr 1fr;background:var(--surface)}
+#login .brandside{background:linear-gradient(180deg,var(--maxol-blue),var(--maxol-blue-2));color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+#login .brandside .swirl{position:absolute;right:-140px;bottom:-140px;width:520px;height:520px;opacity:.18}
+#login .brandside h1{font-size:clamp(30px,4vw,48px);font-weight:900;line-height:1.05;max-width:12ch}
+#login .brandside .tag{font-family:var(--script);font-size:26px;color:#fff;opacity:.95}
+#login .formside{display:flex;align-items:center;justify-content:center;padding:32px}
+#login form{width:min(380px,100%)}
+#login form h2{font-size:26px;font-weight:900;margin-bottom:4px}
+#login form p{color:var(--ink-2);margin:0 0 24px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-weight:700;font-size:13px;color:var(--ink-2)}
+.input,.select{border:1.5px solid var(--line);background:var(--surface);border-radius:var(--r-md);padding:10px 12px;min-height:42px;width:100%}
+.input:focus,.select:focus{border-color:var(--maxol-blue);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--maxol-blue) 25%,transparent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:10px 18px;font-weight:800;font-family:var(--display);min-height:40px;white-space:nowrap}
+.btn-primary{background:var(--maxol-yellow);color:#0B2E4D}
+.btn-primary:hover{filter:brightness(.96)}
+.btn-blue{background:var(--maxol-blue);color:#fff}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-danger{background:var(--bad-bg);color:var(--bad)}
+.btn-sm{min-height:32px;padding:6px 12px;font-size:13px}
+.btn svg{width:16px;height:16px}
+.poc-note{margin-top:18px;font-size:13px;color:var(--ink-3)}
+
+/* ---------- Shell ---------- */
+.shell{display:grid;grid-template-columns:248px 1fr;height:100%}
+.side{background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;overflow-y:auto}
+.side .logo{background:linear-gradient(180deg,#0563A0 0%,#3384BB 100%);padding:14px 10px 10px;display:flex;justify-content:center}
+.side .logo img{width:200px;display:block}
+.side nav{padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.side .group{font-size:12px;color:color-mix(in srgb,var(--side-ink) 65%,transparent);padding:14px 12px 6px;font-weight:700}
+.nav-a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);color:var(--side-ink);text-decoration:none;font-weight:700;font-family:var(--display);font-size:15px;position:relative}
+.nav-a svg{width:20px;height:20px;flex:none;opacity:.9}
+.nav-a:hover{background:rgba(255,255,255,.07)}
+.nav-a[aria-current="page"]{background:rgba(255,217,52,.14);color:#fff}
+.nav-a[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:4px;border-radius:0 4px 4px 0;background:var(--side-active)}
+.nav-a[aria-current="page"] svg{color:var(--side-active);opacity:1}
+.nav-a .count{margin-left:auto;background:var(--maxol-yellow);color:#0B2E4D;font-size:12px;font-weight:900;border-radius:999px;padding:1px 8px}
+.side .foot{margin-top:auto;padding:16px;font-size:12px;color:color-mix(in srgb,var(--side-ink) 70%,transparent);border-top:1px solid rgba(255,255,255,.08)}
+.main{display:flex;flex-direction:column;min-width:0;height:100%;overflow:hidden}
+.top{display:flex;align-items:center;gap:12px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--line);position:relative;z-index:5}
+.top .menu{display:none}
+.search{flex:1;max-width:520px;min-width:220px;position:relative}
+.search input{padding-left:38px;border-radius:999px;background:var(--surface-2)}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;color:var(--ink-3)}
+.search .results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);max-height:340px;overflow:auto;display:none}
+.search .results.open{display:block}
+.search .results button{display:flex;width:100%;text-align:left;gap:10px;align-items:center;padding:10px 14px;border:0;background:none;border-bottom:1px solid var(--line)}
+.search .results button:hover{background:var(--surface-2)}
+.search .results small{color:var(--ink-3)}
+.top .spacer{flex:1}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--surface)}
+.iconbtn svg{width:18px;height:18px}
+.user{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--maxol-yellow);color:#0B2E4D;display:grid;place-items:center;font-family:var(--display);font-weight:900}
+.poc-pill{background:var(--info-bg);color:var(--info);font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.content{flex:1;overflow-y:auto;padding:24px 28px 48px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.page-head h1{font-size:28px;font-weight:900}
+.page-head p{margin:4px 0 0;color:var(--ink-2)}
+.crumbs{font-size:13px;color:var(--ink-3);margin-bottom:4px}
+
+/* ---------- Components ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 0}
+.card-h h3{font-size:17px;font-weight:800}
+.card-h .sub{color:var(--ink-3);font-size:13px}
+.card-b{padding:16px 18px 18px}
+.grid{display:grid;gap:18px}
+.kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{padding:16px 18px;position:relative;overflow:hidden}
+.kpi .lbl{font-size:13px;color:var(--ink-2);font-weight:700}
+.kpi .val{font-family:var(--display);font-weight:900;font-size:28px;line-height:1.15;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .delta{font-size:13px;font-weight:700;margin-top:4px}
+.kpi .delta.up{color:var(--ok)} .kpi .delta.down{color:var(--bad)}
+.kpi .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.hero-kpi{background:linear-gradient(135deg,var(--maxol-blue),var(--maxol-blue-2));color:#fff;border:0}
+.hero-kpi .lbl{color:#d6e9f7}.hero-kpi .delta.up,.hero-kpi .delta.down{color:var(--maxol-yellow)}
+.cols-2-1{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.cols-1-1{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid>*{min-width:0}
+.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.chart-box{position:relative;height:280px}
+.chart-box.sm{height:220px}
+.chart-box.xs{height:160px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;color:var(--ink-3);font-size:12.5px;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);position:sticky;top:0}
+th.sortable{cursor:pointer;user-select:none} th.sortable:hover{color:var(--ink)}
+td{padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+tbody tr.click{cursor:pointer} tbody tr.click:hover{background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.strong{font-weight:700}
+.dim{color:var(--ink-3)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:800}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-Pending{background:var(--warn-bg);color:var(--warn)}
+.s-Approved{background:var(--info-bg);color:var(--info)}
+.s-Dispatched{background:color-mix(in srgb,var(--swirl-purple) 16%,transparent);color:color-mix(in srgb,var(--swirl-purple) 75%,var(--ink))}
+.s-Delivered{background:var(--ok-bg);color:var(--ok)}
+.s-Cancelled{background:var(--muted-bg);color:var(--ink-3)}
+.s-Active{background:var(--ok-bg);color:var(--ok)} .s-Hold{background:var(--warn-bg);color:var(--warn)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.toolbar .input,.toolbar .select{width:auto;min-height:38px;padding:7px 12px}
+.toolbar .grow{flex:1;min-width:200px}
+.tabs{display:flex;gap:4px;padding:6px;background:var(--surface-2);border-radius:999px;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;padding:7px 14px;border-radius:999px;font-weight:800;font-family:var(--display);font-size:14px;color:var(--ink-2)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.tabs button .n{font-size:12px;color:var(--ink-3);margin-left:4px}
+.pager{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;color:var(--ink-3);font-size:13px;gap:10px;flex-wrap:wrap}
+.pager .btns{display:flex;gap:6px}
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line);text-align:left;width:100%}
+.alert .dot{width:10px;height:10px;border-radius:50%;margin-top:6px;flex:none}
+.alert b{display:block;font-size:14px}
+.alert span{font-size:13px;color:var(--ink-2)}
+.ret-cell{display:flex;align-items:center;gap:10px}
+.mono-av{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:13px;color:#fff;flex:none}
+.meter{height:8px;background:var(--muted-bg);border-radius:99px;overflow:hidden;min-width:80px}
+.meter i{display:block;height:100%;border-radius:99px;background:var(--maxol-blue)}
+.vendor-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1280px){.vendor-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.vendor-grid{grid-template-columns:1fr}}
+.vcard{padding:18px;display:flex;flex-direction:column;gap:14px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.vcard:hover{border-color:var(--maxol-blue)}
+.vcard .top-row{display:flex;gap:12px;align-items:center}
+.vcard h3{font-size:16px;font-weight:800}
+.vcard .cat{font-size:13px;color:var(--ink-3)}
+.vstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vstats div{background:var(--surface-2);border-radius:var(--r-sm);padding:8px 10px}
+.vstats b{display:block;font-family:var(--display);font-size:17px;font-weight:900}
+.vstats small{color:var(--ink-3);font-size:12px}
+
+/* Reports */
+.rep-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}
+.rep-nav{padding:10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0}
+.rep-nav button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:0;background:none;padding:10px 12px;border-radius:var(--r-md)}
+.rep-nav button b{font-family:var(--display);font-weight:800;font-size:15px}
+.rep-nav button span{font-size:12.5px;color:var(--ink-3)}
+.rep-nav button:hover{background:var(--surface-2)}
+.rep-nav button[aria-current="true"]{background:var(--info-bg)}
+.rep-nav button[aria-current="true"] b{color:var(--info)}
+.insight{display:flex;gap:12px;padding:14px 16px;border-radius:var(--r-md);background:color-mix(in srgb,var(--maxol-yellow) 22%,var(--surface));border:1px solid color-mix(in srgb,var(--maxol-yellow) 60%,var(--line))}
+.insight svg{flex:none;width:20px;height:20px;color:var(--swirl-orange);margin-top:2px}
+.insight p{margin:0;font-size:14px}
+.roi-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
+.range-f label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:4px}
+.range-f output{white-space:nowrap;margin-left:8px;color:var(--ink);font-family:var(--display);font-weight:900}
+input[type=range]{width:100%;accent-color:var(--maxol-blue)}
+.roi-big{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.roi-big div{padding:14px;border-radius:var(--r-md);background:var(--surface-2)}
+.roi-big b{display:block;font-family:var(--display);font-weight:900;font-size:24px;font-variant-numeric:tabular-nums}
+.roi-big small{color:var(--ink-2);font-size:13px;font-weight:600}
+.roi-big .accent{background:var(--maxol-blue);color:#fff}.roi-big .accent small{color:#d6e9f7}
+
+[hidden]{display:none!important}
+.prod-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.pimg{height:104px;display:flex;align-items:flex-start;justify-content:space-between;padding:14px;color:#fff}
+.pimg svg{width:46px;height:46px;opacity:.95}
+.pimg em{font-style:normal;background:var(--maxol-yellow);color:#0B2E4D;font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;height:fit-content}
+.pbody{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.pbody h3{font-size:16px;font-weight:800;line-height:1.25}
+.pprice{font-family:var(--display);font-weight:900;font-size:19px}
+.pact{margin-top:auto;display:flex;gap:8px;align-items:center;padding-top:8px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.stepper button{border:0;background:var(--surface-2);width:30px;height:32px;font-weight:900}
+.stepper input{width:36px;border:0;text-align:center;background:transparent;height:32px}
+.stepper span{min-width:30px;text-align:center;font-weight:800}
+.cartbtn{position:relative}
+.cartbtn .n{position:absolute;top:-5px;right:-5px;background:var(--swirl-red);color:#fff;font-size:11px;font-weight:900;border-radius:999px;min-width:19px;height:19px;display:grid;place-items:center;padding:0 5px}
+.mono-av svg{width:18px;height:18px}
+.portal-sel{min-height:38px;padding:6px 12px;border-radius:999px;width:auto;font-weight:700;font-size:14px}
+.s-Paid{background:var(--ok-bg);color:var(--ok)}.s-Due{background:var(--warn-bg);color:var(--warn)}.s-Suspended{background:var(--bad-bg);color:var(--bad)}
+td input[type=checkbox],th input[type=checkbox]{width:18px;height:18px;accent-color:var(--maxol-blue)}
+.role-tabs{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:18px}
+@media (max-width:860px){.portal-wrap{display:none}}
+
+/* Drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(4,30,52,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--surface);z-index:41;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+.drawer-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px;border-bottom:1px solid var(--line)}
+.drawer-h h2{font-size:22px;font-weight:900}
+.drawer-b{flex:1;overflow-y:auto;padding:20px 22px}
+.drawer-f{display:flex;gap:8px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--line);flex-wrap:wrap}
+.dl{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+.dl div small{display:block;color:var(--ink-3);font-size:12.5px;font-weight:700}
+.dl div span{font-weight:700}
+.section-t{font-family:var(--display);font-weight:800;font-size:15px;margin:18px 0 10px}
+.timeline{list-style:none;margin:0;padding:0;display:flex;gap:0}
+.timeline li{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--ink-3);position:relative;padding-top:24px}
+.timeline li::before{content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:var(--muted-bg);border:2px solid var(--line);z-index:1}
+.timeline li::after{content:"";position:absolute;top:12px;left:-50%;width:100%;height:3px;background:var(--line)}
+.timeline li:first-child::after{display:none}
+.timeline li.done{color:var(--ink)} .timeline li.done::before{background:var(--maxol-blue);border-color:var(--maxol-blue)} .timeline li.done::after{background:var(--maxol-blue)}
+.timeline li.now::before{background:var(--maxol-yellow);border-color:var(--maxol-blue)}
+.modal{position:fixed;inset:0;display:grid;place-items:center;z-index:42;pointer-events:none;opacity:0;transition:opacity .2s;padding:16px}
+.modal.open{opacity:1;pointer-events:auto}
+.modal .box{background:var(--surface);border-radius:var(--r-lg);width:min(620px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,20px);background:#0B2E4D;color:#fff;padding:12px 18px;border-radius:999px;font-weight:700;z-index:60;opacity:0;transition:.25s;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--maxol-yellow)}
+.empty{padding:40px;text-align:center;color:var(--ink-2)}
+.welcome{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.welcome h1{font-size:30px;font-weight:900}
+.welcome .script{font-family:var(--script);color:var(--maxol-blue);font-size:20px}
+:root[data-theme="dark"] .welcome .script{color:var(--maxol-yellow)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .welcome .script{color:var(--maxol-yellow)}}
+
+@media (max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.roi-big{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:1024px){
+  .cols-2-1,.cols-1-1,.cols-3{grid-template-columns:1fr}
+  .rep-layout{grid-template-columns:1fr}.rep-nav{position:static;flex-direction:row;overflow-x:auto}
+  .rep-nav button{flex:none}
+}
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:0;bottom:0;left:0;width:260px;z-index:45;transform:translateX(-100%);transition:transform .25s;padding-top:env(safe-area-inset-top,0px)}
+  .side.open{transform:none}
+  .top .menu{display:grid}
+  .top .user span,.poc-pill{display:none}
+  .content{padding:18px 16px 40px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .roi-inputs,.form-grid,.dl{grid-template-columns:1fr}
+  #login{grid-template-columns:1fr}#login .brandside{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<section id="login" aria-label="Log in">
+  <div class="brandside">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOsAAABPCAIAAACF5aV6AAAQAElEQVR4AexdB3xUxdafe7eXbCrpPaRAIAkBQgcRKYo0FakiCoJKsbxiec32nvX59PmUJxakgxTpvYO0kJAE0kgBEkJ627Rt997vf/cmm81mA0ETnnzk/s7Onjlz5szcuf85c2ZuFmjJ1I+6qGsE7t0RoIlI3EVdI3DvjgBNaFEXdY3AvTsCNE2Lu6hrBO7hETBJFF3UNQL37gjAB3dR1wjc4Qj8ptRFXVfXCNzLI0CTrqtrBO7lEehC8L389Lr6TghNdV1dI3Avj0AXgu/lp9fVd4rqQvC9goKuftofga44uCuWvLdH4H+DYFdFwzCf/PmRyX+KO/3p8COfjTj81sBTz0ddfMA3z0dVaxlRmnARqvLuqkqLpIvpGgGbEbirCHZX1r8QlXjk8fU5z3y9d/Kmzx44/Eb/swt6J83vlfz7vuc/GXZ016TNCTNX7JvyIyTe6lqWUEUG9SNuuV9FHoh0KLPpele2awQwAncpDnZT6ub0SP37kBNDfQoyq1xXpfXalhN2sdSjUidHJ6xJLTUO9b4Brxw/Y+X7Q0/gsOSLvH5nqn2ODVj/n8jDnrJ6+9FQl/R+HYG7hGC4+qM3ghYefuSp/ZMWHR338okxcw5MHLH5qdgN82btm/xDalRiiSdpeTlK9UuiL5ydsXJxn8SfSiLmp41/0jN9X9yPEzxy7teH1XXfdkYA0GoJnM7JlemUBXXq1rbLGxQ7r3ZfemLMA1tmT9o59XJ5NxsdX1XN+4OO7puy8XSVz5iEGT7SmlVRO5dF7lPQJhvNzsh22fztj8BdQrAwEKEuFU/3Tvl01MEtj23eN209aM/UDSsf3fGnwaceDclKLnMf/OPTvzv1UI1BKuhb0hi3opPTVtVT4r/kjCAcmeaV/nnPg5bSLuZ+HoG7EUUEOmlf6JN4Yvbqs3NWfDF6//zopNGBVwf73AAN9cufEpb52sAz6yZtu/zc8jUTtufVOb58ckxahZvNU/FV1hx8fF0e65haw/vpJzwz3go9RdPEzrrSJbqfRoAWE6rzKNSxeuUjO87P+e7DkYdj3IskNGuDS+usWmKYGHpl0+TN74w4dq7M53SRL8tS1gqusgbYWVEaozeJIF8aEP9B2LHO63yX5XtiBGhAoZNoXHD2zifXTQ7PkIvvLGb1cah5JjopuFulHpOrZeeCHKqmRqcmNHgT81yY73txjFtOS5Wu3P01AnRnLDgimrw55OTaSVu81DW/eDg91bUKpYG08MIEQfAQn3wv9xqGayx4wT+hM26hy+a9MgId74PFFPvtI9t+F3f6F2LXppqMswUxS0L9ykVKDmiG7mDn/Blel8B00f05Ah3vgz8fu2diaGbr0awzSbNrXU6WBR4qDjlaGnypzqOCVhAlITJii1FidcHVSjirvJmlCK1qRDAh5KXAc3IRe6/4jN9sPzUyo7uqvpuqHi+VfrOdbN2xDkbw64NOTou4DFRZqFSn+jG399z9jw9atXDw988/vm7mzI3Tpq2fPuq7eX3+vWjov+e/sXnU6UJ/LS0lao6IiZ2LpkirpYKygnWgoupBl6u4t0CHaqS/jPw12j7uxdFmwqazh2vZre0opSYoQxMpCIyrouHWVYRSP02NpSFUBB/iVCUU2U1DnSuhA00L3aItF7kealBAKhDq3sK+SmJ6OCj7g+EHD0xdeWbW8vjZX4NOz/xm/9RV7w07PMLvuux2rkEq4np1K7W0iOa81LV2b6SThHQH2p0clv67uFOk6Tp8PWT+gceHr16wZPfEvVciius0AeVFD104PePgrnm7tr64ddPcn3aP2HSeWa3d977nile6b/4ypKxUzuPYBq8U1xrBNpKnvJNwI0O98oI1lWDulPAAjk//9sDUFYfMdHDqD8emfff2kCNt2YGX2jZpHZShiRQEZvvktZC3VUWQjw7IPT6tuSFURKPHp38zJ5Lvv6Bjk04NS4UONC2Eto5O+w77ARvNgd43jk77FmpQQCoQ6i6MOW+jiWyYc8U/hh08Ou37VY9sntc7oY97oYeyViUx4ETIW10T635zYVT85onrj8/49p0hR7zVdahil57plXhk6veWFtHclokbML3tKneGkG7C26/9xoHDHwacEKxkVbjO2jl95o7pOzMjKnRKmuP6pyW/tGXF0p3rJqZeGlZQ1b/MGK0lMZWmvmV1A7JKIw8XeezR1r2vPzbdMf0rJcsSYvNOw6abHCEiwsceYAh/DXAscBDra02yp8KT+Pwdfvp5FuDJWVeiKe7xsMsyEWMttPChThV93G9asgIT7lLm46AV+LbS+VHxDlK9TSlaAVywf7CRC9nPLg6+Wu0i8JbUS1X7wbB9UpHJIgH/4fD9AJ9FIjD1Jum3Kf0F3pLO7pm0/4kV83tfCHKssAjtMiGOFc9Hnzv4xHfTwlPsKnRTAtxNj8Gs4SxvkFB4hOZM5yfwwRxFdQDNi44PdS5Hh/fmhj2+ffbh68GC2Z552Uv3rJoRfyRMS2u4YBXrK+WcRJycAgZx4ywHIIqknFhJlCpiLKLi39GcWKwxVFO8MyZNF801cU3fIsJR/NGEkFeKDL01xVlal8khaXAkQtPtT8NcygQ71qmrrD7cpdSukcmhqdaaFt5PXW1XXxAqJMZIt2KLsjUT6FjppdYKajapnhF9ljjYWlngMWEWRMVblOdGXuzhUiIUWadvnxmZU+1iUQOzpM/pf47Yg1GyVrs1D5j++8FdL/f9GdVtiOFsvAsxQUIRG7XOywrN37r/ty/1Vmtf6numUqd47di4Z/Y8UVKnQh1Nbe2TJ/fNP7oztITTMCFK1lMM4HK4F0Lg2lhKJJVLlJqcoO5HYuO2DBq6asSwDQ8M2z+q3+bC6I1zvQoOSIiiCbg0wbCQphyM8yTs5ZqEPVQlFTqlj7P2kcArfOmdfHo4l7ZWF9HcnJ6JreV4nE+G2T/9AOJb61skI/1y3RV1lqw1I6GZMYHZ1hJrfmNm71VpfawlAv9y7M++6mrwDlLDwujzYGxoXUb0ytRYixCtvDfk0J8HHrNI7oh5I+744pgzd1TlLih3DIKXxJ51lDU8t2/KysuN4xVUeHPpvnWDsnM1DPyuD5yu+WZoYkIsJJK6OaiCPAt7dv9szLBPR8ZtjQk/GhEcHxx8LjT0cO/ozSOH/TVuxhvLR17ZqiAOAk4JJWr2uLypJuDysAZPEWcxFi8Gc2NicBqv0O6PRqoPbmMxnRKa1hpz08NTXBX1ds1HuNiZCRbNeb0SLHxrZm5kQluBBJTfPDkmsdgbjDUBuAui4yF5JfaUAGXwFkop83rtxFhLFgw6ML83rw/+lxHQPyPCfjjxywz++lo09asvF4VuTNCVZ/c98XNBkGAspKhwwZGtrrUmFeMn4uBIWUIoYJeYiNRX49DfWxXhfr6793uxEWluGqGKTaqTyw/2j3vx1GPll8W8J+YIEeFDmi/eixPA1yKVUJwr3cDVUd7KGhtrt876qGvaQiSC4/EhV6yrS0Xc9HD7Dhh9C9QgirBWb+bDXMoHeOVBpy0Kcy7v73WzuUJLjiGi3x0fj4jCpvrsHsmgub0u2siRfevMKBMntpjRyAzPtQFflqO2ZkcuPDRlzNZnx255ZunRCdtzejAsBSOt6a3BR3w11iPcWoVQFIi6O1cHILh3t+J3z4zalxsh9LibVjv95wNKg0TF+IqI1OxCedcrdlU6DPZW9fMQaeQpGodv/AMYkUio0laa5hP8zMrHKotliJkJRZrPHyjCGYnwYpkQwgHFHKEo0l1ZwdVT3ooaF5mOaveF8J2mONixS7MikoBai7GHArJDnPhw366yn0OVSmK0KFszsyKSb/1nITA4u8dF6yo2fGaV++r0xiUOygIpxYZPRuxBKmQt6eas3ueK/K0tLIw6b3ejeeJG0OQdcxYfmbwzt+flMq9L5d6bs6JeOPzYzL0zkkq9LAYtjKO0YY5VPwmhSMsLeet2O5vvgCgivshvR3akcBdqnW7hgW3uWr2C9aI4nO7yyOB0jKKnq/OkEFmoMy2iC+Syf/oGGPDqWahzy/SCW/gbBx8mCCGghrHh7QGzhBgoHsFCFkWQcdQQpzyugThTDWEaOzszs5adJNq9yI60SdTLrWi4b66QA9AXRd8qEHRX1Xqr7bxIh4+fEZ4sGLGkOdWuHIdbsgjIo8HpAZqq5nwr7t2zoxKKfVqJbQVJpV5w2NbGXeT183rZiR82ZEZP3zPzQrGvrQlCThYETdo+d8/V8NZFYwKv3CLgaa3fqZIOQLDOBKQ2dnLyuZ9damrFnIYQilAsHDCnN6li3J0eCqCkIh5zInqTczc9fQft7iztlZBnfmwUabxg12BmOSCXZziOaMS6vg43OBMF8lfdCgd8BatPqNNt4P5kWIqgjhPT3m72DxMEBTxXPwd+ayVkLen4oAyNTGfJgkE88OapsdUGGXgLyUTMpBD7pxyCjpEV/f7keByQCVm7aYNJAvhC07q0v8cNp5YdQKlWL/8kYTiYtsjI0jBVWOdgoxDuVMbvWW2k/6NsB0QRlmUitOhmbE4WAl8RkXHEDF+jSRnZzWV8KAWPy3IUTRWK5PEKB0uV9jCE0DtyIgkuimBe8MQQTk8RwJc0Ihjf4cqyQEUlP0mMxEve3tdCEpq77ZlonOcNhYRBV4f6XMOxK9q6BSHGgKYNTW6Fy8QSn1M3g7F82ZjCaSC6ZFPdOnul0h2e2KaWdfaThBEZlZ7WVcDjwNtaR+DXZPYprHNE6S1Ia1Qeuh4m6FtSHCfFuBc21bKIm5mmorvxTQPCHUWDM7JoIhKbt24cxbFGkyzY2eXhMNZgAhEOF3XZgbD0HTeaWeHBDw8QzH8RroHiGgSuMcUZpL+sEi6QANZG4iJuaOdN+TjUBDi0cNjVBsU1bYs3CB7KmoFeeTBoE0IYGDH2++YeNCeRriXQtCa8fejdrahZw8ytz+gLnbWZfc255iTMuTTYqRJFt6A1Gf32XotormPFnS4M/D51QOu6IY62sTv8yY6c3q01W0uOFwRbtdDI4k2HoEnxHqVRaPkCcoXSu5FaWv2VjLpBF3HjBs1JCX9LHOFYIiLqaC+WYRmdkTUyHBgjrb/dWyti7yqocQRcCGcu4whbQ/E7OaoxCzmw6yk1B6Ac4eChcfhhLrxt4qaos3GrFTrFd5fjbCpOCk7t75EPeFnL44v9VqX1s5aA93ew/dctxgZkqsRC0INynjDfLpbyR2MJxX6YMLyo6YNQe7T/7c+zyxrUTTVafBfUOppYOxGaiLIdER0jwfF5i8ptZMp0dtpCwNOG+t0W27nbX9aF0JvFKj1D4byAHyyONRkV3d2k7g5MnZ41MJyRYY0sYU2sWIAhuaOr1ijTMyIgFbODM1BstRm8sARqbQgPC3Fxa7k9ibNMcObNZai6PacXoNAsIuRBv+y/DLD9Zd76zJh0YXGwUnWU6bDIWgTgp4XbvugurNUU1WOrQBAH52mdLMoCziyQ2gAAEABJREFU81joJbxMEXi7aaRr8WOhjaG5jcLU0OS+HjdshHazeLshE+FAx25hC6HM3o9qmZZ70BYV7m4Gbh4uvwOox41iitDwgBxhWc5EqyTqnt4svK+BAYJ5MjI0Z5BL8YDvuDkc3ctFJh7BhLBlFIf3CU1hsCBskbKkzihrZxteKrPnJs1XpU5ZZVCuSGvhhuGq+7gXNCsRkqt13XMt0sA272KFUkepXiFmLK0/4Hs1yq1QKLKkm7Oi9YwEOoTQ23N7WeQCE+Fc8pBfFkrtUoCm6rvRG22culBRSD8eutO11V/JFdc7CqWWFAjGTLDbhI0w2t22/zCCGSiowacga0NC0d1JO8wHe1TXEX5eskAwx5rkPi4iuRTxA2c0gfgowuyDPWS2iLG5ebtZX021BGEJIVw9xZRSjToWB9zECN8cSxXrHRp1bvcV2up98vVaZ1Tamh1V0/KgAEJrWpsei/Vaz4hB1nKNtEElaY4ZZkXYvodDrYP5YQCQQEfyu9tYgLUZ4XbeUEAuoZl/jdjuo7Zz3IFSgUKdy94euE/gLemVKv7nsZaswEwKafF3sIKwdRrj1mLqCgrZVbY/xRXkdz/tGB9MU0StN6H3gC/BcQBN5B5OOEfjTCxr5IkzMZyRQdpXWfALpiYfXOIlHEUYOGA9aZ73AmYJIRYGPEsK6p3a2Urro7TrWlfULdep91/vAWN2CSdWu672hlq9SWZkRdY6eI3npW58ZeXjoB3u0+pnfBRZNnLLkceXCfT96I0iyrr3vLEh3rm+DtWwb0NLYk7197jViz2+MiGA5tSwZOu6SaV2TnxH+2dFOJdaq7Xm/Ry0Q3yuCWYtaZ1Jmlbh1ajc/DAs5RA1Ft6Frw7ywRxFMzS6y1EMyzJitVyslLN6I2dgOIPJTAxnZFkDF8aVj9GkN99rOzia4qYE8y9ymSKKwZ5eAIz5oZuTliZoUqOVZNfacTkt9ficQmzs7mh7GJxV2ehdcFDA8qsKr2nzuVjqW1TPu3kE6NqWrhqBb4imceM/O/wCmrCpi01ngKbCQoGaCjGN2dlCSy42zQq3dd6x7jee62X7PsXE0T9eieFa9RNuGE1YjKZWeOBlmyUrMGj37UH7HKW2OwGhFKmfQ9V/R/3YWiG+yL/YfPvQ+Z9TByGY4kwSGcWJsFljOZNIrSAcxRoY1sjwKRgDwxlNpgbKWCt5w/2AmoIjbe+9zwxPGOB+nSmmjLlNwa8d5Jqt0fzb5puFmmKWh5dZdKvES6V1bxUHX61xFeqklnsKMBWy1uma9MZTsAaTpLiO35NZl4Y6lSALKI8JyADzy2hSyCUZQv+mynip9sUDm63jE6FkbXq/P5ya9FNObyFrSdUS/Z/6N289TaxoVbrtXwlDeZDX1fUPr4p2s/1bZxQN9Ly2ftzK3q52ik4WhEChLcLDaR0XtaX86+W0mCK/nkQU1SBX0PxrZBav4mgxzRnZRjKxiCUEYvVEXyP3oyve67a7nY327VbwZv+DTAllzDLDtykG5u8cQ8V/NX1EhJiIMZcrqVdjOWiP/e6O5fCITfX5b61BXt7gINRlWPEhe4FEfq3T8YJwQQdpUYMtgoN5syRQXe2nbnHSzDfQ7o+XqsZfXQ37An00dGfrvz6rN0mXXx4ChQ8vjKk2KGxsjw3ImB2eiFKB9lztdVXbODmtNSNdi7Y++v2HQ3c+6JuNl22IK8YFZH48bMfqsWvhg601Bb6sQbUjt7dgEylt/UTMGhKKjXYr7OFSak09nUscpQbodzh1kA8mpEzjIOaUhFDmUBjntTxwiZEhBhALhoM/NrJ6rQznteNkqW/I9ivIbU5zhnrnLh+0XnbNaMygCPDadmcpHLXVE30Sx1SSM4ydE3hi74pwsX1FjHdUVXrcRaP22sx+esb2tGF1WpzO1CzMa/n6AzWFl3xPhCUhGEDWmrD4YgK0psI6jU0kIKLY8UGNO62FvU+N9rd15wxLvfnzhKI6fv4AVT+kDrBuSODfjNvfx73xcA19/ip5qCC3SRFOTA9LXDFm7d4py/ZM/u/XozY8GXrR5phcqMJw9J9PP1qhUwlZu6mrom7T+O93T1xmoT2Tlu2e/N8Xok7a1f+VQhrBa4fQNU9HEacUcVKWMrG4DCziBwapkWWNjMAAxDXFDpyRX+tnOp5fpfh+BMmy27qnqvb1mIPLg9epUxr44IElpDV8qaZ7FxNWR/QXWaaKaxBLdpmi7dpsLYT7aTLR+H1d68xyzWOSU93tcH54Y5n5q6TBYWNWP2tT16ptHZunssZfU/VEd9vzBJzTTdm5YNxPi1vThO0vANzmFpqT6eGJaKi7c9nSmOPN0ibuq0vDhd0kdEBfpoy4UOzfVNj4jajjiwc2uSoa/8nan3L6fH3JPoiFCpg2IIG3m75z9uFD+T3QnIXsqmHrgiNtCyELQiBkqdWBTGtc2O3S7YXXPR05SiRhNRzWcqYphODhCwQjy3AGlmJM1Tdc9NUKioWEhMtLvlBu+I5aOZs+F0dfDRcXRaluPOye+k7orq0By2aXnWWucBxOOODvzGA1Jy16QtGEAnzLiO48y1YRSk6OMhElXLuCYMSpgU1bLovR601BsEWyLqPFW7dtOVF1RqmlFMzNVketcrHx6Z5nPVValFrT4fwwTAA49dZUZVAklPhZK4P3UmmnhCT/fdDO1r48vjjgP0kjoGMhbDr/dnY8LFskAgMjT/Vo/vnGxwkPfZ86SCi60xQV12baCabbaYex97KwnXVvoUZ31GwocVbnuauknBNNxKzRQAwcMTaRwJv4gwpdpaw024OmWJy5AerwrH1l138v2r9csnqjfPlq8fcf6LdMKk5UF+ngqoFOKOBshididQHLNCFiwumJIYvTJbBcHSFSYqREa8jgdt6Ru7LOt1Wcek3LH6VZW7hQGpRa3vhnsgxHb86KtS4FX1xvGwAoxYZZ4ResusuzHEdtyOoP/bZoU3bj7pDXbvq8P2RHPw/b4zPEDx9cGMsS7D5aGLtS5flZ0qimqs3fz/Y8E+PefIj5/oVx/0p6sNIqWGpWbYNDrPJJ4kMfJIxt0Z45I0LY2EYtGzFNc+YaHZzQNs384ixHkbRANxEnk7PuRmMdPC6nZxvJAIYDz8INs6b8i4E6uGGO4xgC4qHMEd7XIipmCSBLSQkl4RkeuJS5R0gFoikAl5ijXmMGpzvHGnM4XkNEoLyeHphBPEn7LndFDTbs1roA6KVyH2sJeMDlq5QHwIDOFQVe1TaetSEr0M06p7yaFn8JBLmk1QHZ7mu9ku0dykJZoNOFwT/ftN3jI0IVSi0p+vP3+IdTymz7KSh8e3kw7Ai8JUUs8d+R6xytTs2+Sh7x6I4Xv7k8tEpvu/+z1BIYbBC/THlg/I5FX18ahkkoCK1TrfE2FizKegYP1ZLrMIbuwBmRGuTOEk7BunN6BL56gJI/gjCyHMjEciaOmDiKY+CGbyT50RTDYxcnoSzhAFykOsLWEA6kI3wRIIv5RZNGT0zz98zpCFPIGVI5XSJryuPQBNAM7KKsmHb8QTK8/bcDjzV973NzDsydc+AZM82dsuv5jMqmg3orQwfze0zb99xT+59Zcny6lbiR1THSuYeeNlsQ7LRO587c/+wbp6c0VmjjixAa9mcfePbWpibtWrQmc2AbNnjxomMzZ+2fZ2Pk1ZNPGjgpX9z0KW3QfJw4ZtKuF98+9+iBvJ54j1NjkJtYkZEVAbXI7rkWiT4/sn3x50kP1hgVTfVsv9dl9r9dnxsHZPmlO3g6ts20nTfjAs+/IyjPQ5MQ7kFTUonBwaCrJkCniSMMB+CCgGAOODZyNGFuJvlWFziJaAbYBfF4BYjhTE2EreeYMs50k2NucMxNnjHd4IzXOWMWp0/l9Cms8QrHlHK88ab4mKAiSzZL+2uJvP33gUeVWOp3tij4bFGQmYIzKtv03xdL/M4VB+EZ27VfUOtkthDURhp8oThQ3+pMo7WpWqPsfFFgG0YE48FXqtxbV7SW1BmliJJbG8FZhLWawBfWOa7NjFt8bPojOxaP277kEdCOxQ9vX/rwjsUvn5i2JbtPaYODoNlW2mCS3q7PQs+DSu39jVtbZtsvp0U06UDaOqpHqZNMxrhxtRw8MWfgeDLyKR8ZI2sE+BiTjs453t3UIOIPyQB0wNdMHId4wtx5hsDdstWELSdMKZ+yVYSrN/tmEbH4XV6V5U82Dskj1ysGd+CN3G+mWCKq0Dvk17ncqHWt1Ks4IrpXRqAjfTDw1CCTbBgdyYrEEoOaktDm+IHjgGATx+GAAv4YZCIiylR1w+nK4QiK4yhsBYBbgJfjeGfMEd6nIsU3ekcRRMaNRKEFM5lLzRwP3yyJ5weaibAqSLrS+2oEgJEOvt8cX5fjsQGcgaWUEtpFThoYPpAwA5c/fDDHFYgcRGJjcbp75qFw8BT2PSxphi96xPEwNn+QITwD1ILMOT4xo5mr50qI5nXX6bU4SOOlXZ/7bgRoqhOu/YO7HxocYsypoTxklJeCNLB8HMzADXMcy5MZ04QWM4WXvC7viNRVy8USUzNMERjgQQCvIGsGPAhCwBfqNVw+cX3NfWah2KUTbqLL5L0xAh3vg4Exo1i0Z0jYplGR+it1bJQDGyjnDBxATFiO34EhxmUJXC+crkhsqrjqmrw5pijVi6ZZWoQCHsn8B0iFLaQggRFSwNdIOC13WeK31Hdupoz/uQ5KfvskFlEiGr3/JT11VHTKUdQv6cpvrA7deRPtbIz/urhwXaLW2FNuDJMBr8RAcACMcJfngWaeIyIpo6+TpR/okbY3sq5cCccskpiAZj4+xmBZwxdPH1u/Wo6t5I6pIpf6PVsice68/nesZblE9M1T/XcvGebvqrpTy5NjfPa9NPyTJ6LFmAF3WrmT9f1clCPC3FUysdBOpLdjv8C7uiRa+2DgpYPpYk/vL0bEnivX6N3oul5ivQfh8GLGxFGAr9AUAMoS4FUkYUpz3JK29knd2ys/IaCmxIExigS5WMJIpKxExEr0DKngMk1eH3lP+qvvND1999ySi0r69KDAod3dMOOFjiMFH+CqRAreLvm7KJVSHJ0QwPfTqTEDglyyS2oNJoT8dtXtC8M9HV4fF6GWibNKau1rdIQUUyPITSUV3xkeljzYfffiYctmxT4YwZ/xDQp2XT9/4Mq5cTF+TrBGweMQgqFzd5B1RB/t27izHtu3cUtpobvDTwN6rAjqneuuqfPlqgPZeieGEQHEhGbgZ813SThs1gBilqHLct1yT4ek7IhJ/ik2fX/vnFNhWef9U852O3+o2/4jAX+pmbQw9PkdLv0ZqtN7LtzW1L6+P8ztv+X5wX8cG/7ZkzEqGY9Ioeivj/bctXhomIdayNqkeJy7lwx9fgT/mu3Vh8IeCO+WlF/18o9JxVq8sLHRbTPrIBd/OjVao5C8uil5+clcHOe0qfrrChYMC8a9PBFr56ccdg0jIvp8Wsz0fijd7P8AAA1fSURBVP6Xb1bX6k24NagFuqkg5wj31cxYWMMISEQ0Rm/1swMwh6HQGUSLCHcXKM/NaXXvvpsiY3M8nLUuxrJuukoHXa3UYKBMHGGBYpoAkhTOh8USViSFm2Krq8U52Yr4BNWpM5oj6X4r3R/4eOKsY/37sdRd6jOGZd7gwLcmRHpo5HBPGP0tifn1OiPkoIlRXgB3cn5VVpEWWRtyUYj/MblXaY1+3dlrvo6ymXH+eeX1r268SFjWRvPW2TfGRQS6qj7Zn3E0vejWmr+mNMBZ8czgwKzimj0pN9tjR0KTZTNiwz0cpi8/PX/l+ae/P1dYWY+KV0v4H0FiUQJeT2WV5pbUvDEuPKSbetmxLKPRBIXOIBoP5u4QR6hst24bBwxc88CIk70jkrt7ZPjI8hz0hXRNIactYrRFpuoiQ3WRvuqmrvK6oSpDoU/xl1/s63PksQHbnh+fMDK61ulWf5b66+8CQ29tZHyU95JRod+ezP3sYCZHSHZJ7X+OZHVzkCHOeyDc/Y2H+V/RJVyvHN3Ts29A499FiEUUFtCBwa7vPxblrpHjKQa5qT98IqawumHphsSyWr21/dvyj8X6Torx2Z9atPbc9dsq/wIF4KyPv/Pg7m4fPh6FQPZkVmlckEv/wMZ7uYXB18b1cFZJZ3175mZVA4IiQF9QTrlRBX7D+bw//ZTyzclcDOC0/v55FfVw0mMjPRFTCWodm+KpUXf5KnFxPh/VY8+oQRufGLPqqUfXz3po2+QhO8f32/9Q9N5xfbZNGbh59sh1L0z48cWJe54ee2rC4JyoEL1S3qmdFIvov0+JwogLrWBQ/jCux7uTez+/OuGLI1mLHgxFmPj2zlSOUF/M7PvFjNh/z4jFyn4qu8xVLcVT93Rs7N4fxvb4z6y+y+f0HxraLaNIyxHy5ay+wPTLGy9eLauDcYVU7OmoQIAP/tbkqpb9dULkuavlr21OZjkCZUjQKJhbEzrf2r5aJrHUAnBdVDKJiH5nUq9ls/v9d3a/3r5OiXmVEA7p7ubjrLRo2mWeGx4yKMR19rdnqxtMNgro5rM/xB/JKHn5ofBvnu7/6ujwqgZjeqEWEz42AOab+2BT8ddk754PtjvzdAppiYfr1VDfK72CL/eLSIsNy+0ZWBDopXVxMEnEdqt0htBZKZ0Q7f3K6LBnhgRhuL+YGfvUwIA1Z6/Bay4YHoJ1MP5aBRyMiWFfWJMA4KIPb25NWbQ24a0dqf/Yk77nUuO/qACH/f4e/nesh9KLZyw/ezi9RCam4Y0yi2rc1LL5w4I3vzB438vDh4byf+AG6AOjPz4/eP2CQTMHBCCUglkLwcdX1htf2ZjEEQJg/WtazM4lwz6ZGiMoYOcEx4m6K58dMCy08WetPk6Klx8K2/3S8N1Lhz3cy2ve0OBti4YOCHKN9Xf+adGQvgHOUb5OsIBaO5YMff3hHh/szdiSeAMGN8bnPbPi/N92XH53V9r2JP639T28NH8a33PFM3HL5/TDUgAdkEwsAr/kwVCNXIJ2v5vbH56VoMBMcOc7lwyd2s8PU3fBqvgSrb6izgCzf9ycjFH6YG865GbFDk4wY3/NBPh/UhdYQYQgl4iAgM+n9xkQ7FpVb3wwwmPZ7L6LRnbHkP94IR+3iheLgAse247km3suF0HSml56KAyhxZ9+uiSiqbcn9fo5u2zl6WvPj+j+1ay+mB5+zsoTV8pyS+s+nx776ZN9fJ0Ua89ex9xYOipULm08kIJNrAZjIj1f25Li66z84PHoNx7pgc6oZeL15/OCu6lh6s+PRtI0hbpGhn12aBCqPDcsePX8gZh+6CpmFJqGzevldZnFNa+MDvfQyBeNDH1tXERWSc2prDJAUG9i5VLR47G+h9OLP9yXCQsCPTs0+OOp0avmDfB2VGyMz19zNg9jsnRUWIy/88aFg/42IdLEclhPtl4seGdn2omsMqEW1oe3J/byclSgV1qdaf7wEIRbr/6YBE1BofPSLgTzYws/tze1uN7AABDv780Y868TE788Nevbc/86lAX4As1ncyugF9RN/d7kXgfSiuFUkLUhtUzyzZx+UhG9dMNFA8MtHBGCU6S8inr4XU9H+WtbUyrrDPDl7+xKAwQjvBz+uCVlfXw+wmhMiY/2ZwJSgkE/FyWAUl5rwPndf2f3vXC9Ymcy7+M/OQA06jcsGBTm4fDmT5eOZJSioqtK9u3Jq2gXiF+0LvGxZadTb2rjglxlYhorwCs/Jv9+THiUr6OBYc9drfjH3owAV9XsgQFHMkpWnb2+Zt6Ayzer/7jlEm5faHpKH9+XRoWO6en5x80pSzZcxJ1iwcGYxAXxwXGQm6pWb9p/uWj+qgs/XSzIr2yw9BkrRoCr8j9Hs787dRWIf6yPz7u705Jv2PknL4SGOjDtQjA/mI9Gea+bPwDr+OL1Fzcl3IAXqdUzdQYGKy8QfKOqATxi5XcnRuaU1gGCfFjK12vx+cujPfGM/7IjtcHIdnOQz4jjf7WGdO/lond3p/cLdAE04e2m9ffDw1ZIRJ9Pj/n0yWiAYOHqxO1JNy224KqBP1e1FPpmrNwc09PjWnnduvP5L4wIgWvHM8Nx1VsTeqJXr2xKnjs4EP5y1nfn8ysagFec+sklNMtxaHR6nD+io4KqhgWrE749dbXBwOA87stjOX/envrWhEjETh/s5TeplqYnRHuhIhQE54pY+aPHo9zUsvXn89HK9z9fO5BajMlg0RcYhBaje3ocTC+GQlyQKzQ3J9zYc8n+GiVU6cD0fxwHAx//Q1JKRUNCXNfMi3t3UmR+Rf2cFefjrzX/y5MASh9//p/lO5tbjk6+PCq0l4/j7zclw1Uja0P9ApzHRnr88+CVMzm88oQoL7WMj+P/fST7iyPZUB7dwwOHa7lldTCiMzI43wWqRv7z+B+3pGh1RrQFHRCQjS6BQRC5cE3CtfJ6F5XU31W5/MRVCH2cFLmltQvWJDy9In7EJ8df33ppUrR3XJDL7suFswf44/gZu8YfTl8H9Jcdzw10U742Nry6wfi7TSkpN6pR/XpF/Vs70+AmcQ44OMT1L9tTMTEgFwgTGPa3JBZAAZIIT4fvn+4HaCLby0cT5u7w1bGcEHf1zWodSi0U7Kb63eiwwmrde7vTxTT1+rjwi3lVH+63898SW6p0LEPTFLkPCSjZtHDgniVDv5jRx0khwaIMPAFh1kMhpomzQkoIOX6ldEof71kD/P+6PTW/st5aR+ARzn4yNQpvHNafzxMkQBUqfnUsZ9WZa4LEWSnBiuyhkXlp5HKJaOmD3UeGd8OswIH/wGAXQQepo1KMmNXIsC//mFReq4dEJRVV1RsxiwYGuYhFFEKIP4/vAa/8twk9vp4dO7on/zJswbDgGf39/3kw85kf4uFH4WuxIcOrsgYj8+K6xOySGtixUC9vDVrHBvRAWpFFCIaiyJpzeZhpeFWBwcGipJSKEZlU1Bue6Ou7cE1CgKsi0ltz4koplC30ZD9fOALED3V60ydPRGGJeGnjRY7jLAqdzmCg70MqrdVTFFVco8fQP7n87IE0fnG0GQdsWRCDQujnrHhtbMS2pII9l/l4FBJrwjN7e1KkzsguP5FrkX+0P+PfR7I2xDf/SBOxxPjeXjsWDSmr1f9hcwpmS6i7A0KID/Zl7EopxNot1C2rMby7Ow3eMe2mVpAUaXUIoDc8N/CrWbGYEnB1lXWGQFdlYZXuo/2ZL6xJxLSBm5+6/AyagB1YhqcH6NEf7AVxDCLYEVKg7e9Tep3MKsNWTJBYpzD15bFs4O9ygfbVTcnTvzmLRWnh8OCvjuagG9j2ZRRqc0pbvNxG0IX+YzuI2Hd4WDesQnbXKOtWOpa/T6MIvJ548uszM745+8Ppazoj09aYfnLgyrrzeXgzXF5n+PTgFbtq4yI9+/g5fby/xbp5vbx+1Znr1s9y7bm8lWeu7Ustem9P+tHMEgQA2PBhc3aluMbaLCC4PenmofRiixCR68cHMtMKtUAkVoNtSQUIPACvZcdzrpbVAVgADSzX6U1CFexEsdGEndVnr582hzSCXEin9fPDeQiWCyHbOsUWDcYxi+BrYWTxyO51embNuevB3VSIPb46bvsPGaIPb+1MxUE1DjrgCHD20tpmp0pouKIuamsEavQmHEcAB/w2yMjaVXNUSnB8duzKbf4RSOz3l5+8+s6udISMdu3cQohN/R+2pHxz6irL2d1DtqiKpQNrSwuRVcZJKT2YVpxVUmsla5P1dFRMj/PDzOkb4PL17L6HM0rgku1qK6RiLGtY0OyWdqqwC8G3H94vj+XsTy1uS29r4s03t11uq/S3Jscs+ujAlXb2ClEvDgdnDvD/enZsRZ3x47YrYlrOW5VQpNW303IHqt2nUcQdrWuIVnGE1FYVFOGFSFulvzU59nY4nWhnr+DeoBnqrj53teLFdRdrdI2BCoStCfF3a+FdkHQh+C4M8r3aRFJ+FQ7XEFgv3ZBUWW/4bd4GplkHevT/z6buw3urqDci5NiWXHj76Pt/Nzo4D8bRXRd1jcA9OwK/zaWhq1ddI9DOEeiKg9s5UF1qv9ER+D8AAAD//6x3nfUAAAAGSURBVAMAwFDat4JBoGIAAAAASUVORK5CYII=" alt="Maxol – At the heart of it" style="width:235px;display:block">
+    <div>
+      <h1>Retail administration, rebuilt for the network.</h1>
+      <p style="max-width:44ch;color:#e2f0fa;margin-top:14px">Orders, retailers, vendors and reporting in one place – for every Maxol site across the island of Ireland.</p>
+    </div>
+    <div class="tag">At the heart of it</div>
+    <svg class="swirl" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke-width="22" stroke-linecap="round"><path d="M100 30a70 70 0 0 1 70 70" stroke="#FFD934"/><path d="M170 100a70 70 0 0 1-70 70" stroke="#F39200"/><path d="M100 170a70 70 0 0 1-70-70" stroke="#E1251B"/><path d="M30 100a70 70 0 0 1 70-70" stroke="#C7628F"/></g></svg>
+  </div>
+  <div class="formside">
+    <form id="loginForm" novalidate>
+      <h2>Log in to Maxol Retail</h2>
+      <p>One sign-in for administrators, retailers and vendors.</p>
+      <div class="tabs role-tabs" id="roleTabs" role="tablist" aria-label="Portal">
+        <button type="button" role="tab" data-role="admin" aria-selected="true">Administrator</button>
+        <button type="button" role="tab" data-role="retailer" aria-selected="false">Retailer</button>
+        <button type="button" role="tab" data-role="vendor" aria-selected="false">Vendor</button>
+      </div>
+      <div class="field" id="entityField" hidden><label for="lent" id="lentLbl">Demo account</label><select class="select" id="lent"></select></div>
+      <div class="field"><label for="lu">Username</label><input class="input" id="lu" autocomplete="username" placeholder="Your username"></div>
+      <div class="field"><label for="lp">Password</label><input class="input" id="lp" type="password" autocomplete="current-password" placeholder="Your password"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:6px" type="submit">Log in</button>
+      <p class="poc-note">Proof of concept: any username and password open the demo. All figures shown are sample data.</p>
+    </form>
+  </div>
+</section>
+
+<div class="shell">
+  <aside class="side" id="side" aria-label="Main navigation">
+    <div class="logo"><img src="data:image/png;base64,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" alt="Maxol – At the heart of it"></div>
+    <nav id="navList" aria-label="Sections"></nav>
+    <div class="foot" id="portalFoot"></div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn menu" id="menuBtn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="input" id="gsearch" placeholder="Search orders, retailers, vendors…" aria-label="Search" autocomplete="off">
+        <div class="results" id="gresults"></div>
+      </div>
+      <div class="spacer"></div>
+      <label class="portal-wrap" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-3);font-weight:700">View as <select class="select portal-sel" id="portalSel" aria-label="Switch portal"><option value="admin">Administrator</option><option value="retailer">Retailer portal</option><option value="vendor">Vendor portal</option></select></label>
+      <span class="poc-pill">POC · sample data</span>
+      <button class="iconbtn cartbtn" id="cartBtn" aria-label="Basket" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></svg><span class="n" id="cartCount" hidden>0</span></button>
+      <button class="iconbtn" id="themeBtn" aria-label="Switch light or dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+      <div class="user" id="userBox"></div><button class="iconbtn" id="logoutBtn" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </header>
+    <main class="content" id="view" tabindex="-1"></main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle"></aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ================= DATA (sample, seeded) ================= */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=mulberry32(20261105);
+const rnd=(a,b)=>a+R()*(b-a), ri=(a,b)=>Math.floor(rnd(a,b+1)), pick=a=>a[Math.floor(R()*a.length)];
+const TODAY=new Date(2026,10,5,11,0);
+const DAY=864e5;
+
+const SITES=[["Clonee","Meath","Leinster"],["Kingswood","Dublin 22","Dublin"],["Mayfield","Cork","Munster"],["Ballyfermot","Dublin 10","Dublin"],["Bray","Wicklow","Leinster"],["Navan Road","Dublin 7","Dublin"],["Drogheda","Louth","Leinster"],["Athlone","Westmeath","Leinster"],["Headford Road","Galway","Connacht"],["Dock Road","Limerick","Munster"],["Letterkenny","Donegal","Ulster"],["Sligo","Sligo","Connacht"],["Wexford","Wexford","Leinster"],["Kilkenny","Kilkenny","Leinster"],["Naas","Kildare","Leinster"],["Portrush","Antrim","Northern Ireland"],["Lisburn","Antrim","Northern Ireland"],["Newry","Down","Northern Ireland"],["Donaghadee","Down","Northern Ireland"],["Muff","Donegal","Ulster"],["Tallaght","Dublin 24","Dublin"],["Swords","Dublin","Dublin"],["Ennis","Clare","Munster"],["Tralee","Kerry","Munster"]];
+const FIRST=["Aoife","Ciarán","Niamh","Seán","Orla","Declan","Siobhán","Pádraig","Gráinne","Eoin","Róisín","Conor","Áine","Darragh","Clodagh","Fergal"];
+const LAST=["Murphy","Kelly","O’Brien","Byrne","Ryan","Walsh","Doyle","McCarthy","Gallagher","Quinn","Nolan","Brennan","Kavanagh","Daly"];
+const SWIRL=["#0563A0","#E1251B","#F39200","#C7628F","#6E3A8E","#1E8E5A"];
+const retailers=SITES.map((s,i)=>({id:"R"+(1001+i),code:"MX-"+(1001+i),name:"Maxol "+s[0],county:s[1],region:s[2],type:R()<.47?"Company-owned":"Dealer",contact:pick(FIRST)+" "+pick(LAST),phone:(s[2]==="Northern Ireland"?"+44 28 ":"+353 ")+ri(10,99)+" "+ri(100,999)+" "+ri(1000,9999),email:"store."+s[0].toLowerCase().replace(/\s/g,"")+"@maxol-retail.example",status:R()<.92?"Active":"On hold",since:2008+ri(0,16),weight:rnd(.5,1.8),color:SWIRL[i%SWIRL.length]}));
+
+const VENDORS=[
+ ["The Maxol Group – No Charges","The Maxol Group","Fuel vouchers and promotional/point-of-sale materials",true,[1,40]],
+ ["KM Corporate Wear","KM Corporate Wear","Staff uniforms",false,[1,12]],
+ ["Spectrum Warehouse","Spectrum Warehouse","Point-of-sale equipment and printing",false,[1,10]],
+ ["Stationery – Horizon House","Horizon House","Branded stationery",false,[1,8]]];
+const vendors=VENDORS.map((v,i)=>({id:"V"+(201+i),name:v[0],short:v[1],category:v[2],free:v[3],qty:v[4],contact:pick(FIRST)+" "+pick(LAST),leadDays:[2,4,3,3][i],reliability:[.975,.91,.94,.955][i],terms:v[3]?"No charge":pick(["30 days","30 days","45 days"]),color:["#0563A0","#E1251B","#F39200","#6E3A8E"][i]}));
+const PNAMES=[
+ [["€10 Fuel Voucher Book (25)",0],["€20 Fuel Voucher Book (25)",0],["€50 Fuel Voucher Book (10)",0],["Forecourt Promo Poster A1",0],["Shelf Wobbler Pack (50)",0],["Pump Topper Set",0],["Seasonal Campaign Window Vinyl",0],["Deli Menu Board Inserts",0]],
+ [["Staff Polo Shirt – Navy",14.5],["Branded Fleece Jacket",32],["Forecourt Hi-Vis Vest",9.75],["Deli Apron – Branded",11.2],["Soft-shell Jacket",44.9],["Branded Baseball Cap",7.5]],
+ [["A-Board Pavement Sign",129],["Poster Frame A1 Snap",48.5],["Shelf-edge Label Printing (500)",36],["Price Ticket Holders (50)",22.4],["Forecourt Banner Print 3m",89],["Promotional Leaflets (1,000)",64]],
+ [["Branded Letterheads (500)",42],["Compliment Slips (500)",28],["Business Cards (250)",24.5],["DL Envelopes – Branded (500)",38],["Delivery Docket Books (10)",31],["Branded Notepads A5 (50)",46]]];
+const products=[];vendors.forEach((v,i)=>PNAMES[i].forEach((n,j)=>products.push({sku:"SKU-"+v.id.slice(1)+(j+1),name:n[0],vendor:v.id,price:n[1],stock:ri(30,600)})));
+
+const STATUSES=["Pending","Approved","Dispatched","Delivered","Cancelled"];
+let orders=[];
+const START=new Date(2025,10,6).getTime();
+for(let i=0;i<620;i++){
+  const t=START+Math.pow(R(),.93)*(TODAY-START);
+  const d=new Date(t);
+  // seasonality: busier Dec and summer
+  const m=d.getMonth(); if((m===1||m===2)&&R()<.25)continue;
+  let ret=pick(retailers); if(R()>ret.weight/1.8)ret=pick(retailers);
+  const v=R()<.4?vendors[0]:pick(vendors), vp=products.filter(p=>p.vendor===v.id);
+  const lines=[];const nl=ri(2,4);const used=new Set();
+  for(let k=0;k<nl;k++){const p=pick(vp);if(used.has(p.sku))continue;used.add(p.sku);lines.push({sku:p.sku,name:p.name,qty:ri(v.qty[0],v.qty[1]),price:p.price})}
+  const total=lines.reduce((s,l)=>s+l.qty*l.price,0);
+  const age=(TODAY-d)/DAY;
+  let status;
+  if(age<1.5)status=R()<.55?"Pending":"Approved";else if(age<3)status=pick(["Approved","Approved","Dispatched"]);else if(age<5)status=R()<.6?"Dispatched":"Delivered";else status=R()<.045?"Cancelled":"Delivered";
+  if(status==="Pending"&&R()<.2)status="Pending";
+  const promised=new Date(t+(v.leadDays+1)*DAY);
+  const delivered=status==="Delivered"?new Date(t+(v.leadDays+(R()<v.reliability?rnd(0,1):rnd(1.2,3)))*DAY):null;
+  orders.push({no:"",date:d,retailer:ret.id,vendor:v.id,lines,total,status,promised,delivered,po:"PO"+ri(100000,999999),ref:""});
+}
+// a few stale pending orders for alerts
+for(let i=0;i<5;i++){const o=orders[ri(0,orders.length-1)];}
+orders.sort((a,b)=>a.date-b.date).forEach((o,i)=>o.no="ORD-"+(24310+i));
+orders.reverse();
+// mark some older pendings (alerts)
+orders.filter(o=>(TODAY-o.date)/DAY>2&&(TODAY-o.date)/DAY<4).slice(0,3).forEach(o=>o.status="Pending");
+vendors.forEach(v=>orders.filter(o=>o.vendor===v.id&&o.status!=="Pending"&&o.status!=="Cancelled"&&(TODAY-o.date)/DAY<14).slice(0,3).forEach((o,k)=>{o.status=k===2?"Dispatched":"Approved";o.delivered=null;o.promised=new Date(TODAY.getTime()+(v.leadDays-k)*DAY)}));
+retailers[16].status="On hold";retailers[21].status="On hold";products[5].stock=12;products[11].stock=8;products[19].stock=19;
+
+const R_BY=Object.fromEntries(retailers.map(r=>[r.id,r])), V_BY=Object.fromEntries(vendors.map(v=>[v.id,v]));
+
+/* ================= HELPERS ================= */
+const eur=n=>"€"+Math.round(n).toLocaleString("en-IE");
+const eur2=n=>"€"+n.toLocaleString("en-IE",{minimumFractionDigits:2,maximumFractionDigits:2});
+const kfmt=n=>n>=1e6?"€"+(n/1e6).toFixed(2)+"m":n>=1e3?"€"+(n/1e3).toFixed(1)+"k":eur(n);
+const pct=n=>(n*100).toFixed(1)+"%";
+const fdate=d=>d.toLocaleDateString("en-IE",{day:"numeric",month:"short",year:"numeric"});
+const fdt=d=>d.toLocaleDateString("en-IE",{day:"numeric",month:"short"})+", "+d.toLocaleTimeString("en-IE",{hour:"2-digit",minute:"2-digit"});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const initials=n=>n.replace("Maxol ","").split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase();
+const badge=s=>`<span class="badge s-${s.replace(/\s/g,"")}">${s}</span>`;
+const $=s=>document.querySelector(s);
+const live=o=>o.status!=="Cancelled";
+const MONTHS=[];for(let i=11;i>=0;i--){const d=new Date(TODAY.getFullYear(),TODAY.getMonth()-i,1);MONTHS.push(d)}
+const mkey=d=>d.getFullYear()+"-"+d.getMonth();
+const mlabel=d=>d.toLocaleDateString("en-IE",{month:"short"})+(d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear()?" MTD":"");
+function monthly(list,fn=o=>o.total){const m=Object.fromEntries(MONTHS.map(d=>[mkey(d),0]));list.forEach(o=>{const k=mkey(o.date);if(k in m)m[k]+=fn(o)});return MONTHS.map(d=>m[mkey(d)])}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600)}
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+
+/* ================= CHARTS ================= */
+const charts={};
+function chart(id,cfg){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(!el||!window.Chart)return;charts[id]=new Chart(el,cfg)}
+function chartDefaults(){if(!window.Chart)return;Chart.defaults.font.family=cssv("--body");Chart.defaults.color=cssv("--ink-2");Chart.defaults.borderColor=cssv("--line");Chart.defaults.plugins.legend.labels.usePointStyle=true;Chart.defaults.plugins.legend.labels.boxWidth=8;Chart.defaults.maintainAspectRatio=false;Chart.defaults.plugins.tooltip.backgroundColor="#0B2E4D";Chart.defaults.plugins.tooltip.padding=10;Chart.defaults.plugins.tooltip.cornerRadius=8}
+const euroAxis={ticks:{callback:v=>kfmt(v)}};
+const SC=()=>[cssv("--maxol-blue"),cssv("--swirl-orange"),cssv("--swirl-red"),cssv("--swirl-magenta"),cssv("--swirl-purple"),"#1E8E5A","#3888BD","#FFD934","#8AA4BA","#B05A2A"];
+
+/* ================= ROUTER ================= */
+
+/* ================= DASHBOARD ================= */
+function periodStats(from,to){const l=orders.filter(o=>o.date>=from&&o.date<to&&live(o));const rev=l.reduce((s,o)=>s+o.total,0);return{l,rev,n:l.length,aov:l.length?rev/l.length:0}}
+function onTime(list){const d=list.filter(o=>o.status==="Delivered");return d.length?d.filter(o=>o.delivered<=new Date(o.promised.getTime()+DAY*.5)).length/d.length:0}
+function renderDashboard(){
+  const now30=periodStats(new Date(TODAY-30*DAY),TODAY), prev30=periodStats(new Date(TODAY-60*DAY),new Date(TODAY-30*DAY));
+  const delta=(a,b)=>b?((a-b)/b):0;
+  const d=(a,b,inv)=>{const x=delta(a,b);const up=x>=0;return `<div class="delta ${up!==!!inv?"up":"down"}">${up?"▲":"▼"} ${Math.abs(x*100).toFixed(1)}% vs previous 30 days</div>`};
+  const activeRet=new Set(now30.l.map(o=>o.retailer)).size;
+  const otNow=onTime(orders.filter(o=>o.date>=new Date(TODAY-60*DAY))), otPrev=onTime(orders.filter(o=>o.date<new Date(TODAY-60*DAY)&&o.date>=new Date(TODAY-120*DAY)));
+  const pending=orders.filter(o=>o.status==="Pending");
+  const stale=pending.filter(o=>(TODAY-o.date)/DAY>2);
+  const hold=retailers.filter(r=>r.status!=="Active");
+  const lowStock=products.filter(p=>p.stock<25);
+  const hour=TODAY.getHours();
+  $("#view").innerHTML=`
+  <div class="welcome"><div><div class="crumbs">${TODAY.toLocaleDateString("en-IE",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div><h1>${hour<12?"Good morning":"Good afternoon"}, Administrator</h1><div class="script">At the heart of it – here’s how the network is trading.</div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-ghost" href="#reports">Open reports</a><button class="btn btn-primary" onclick="openNewOrder()">+ New order</button></div></div>
+  <div class="grid kpis">
+    <div class="card kpi hero-kpi"><div class="lbl">Order value · last 30 days</div><div class="val">${eur(now30.rev)}</div>${d(now30.rev,prev30.rev)}</div>
+    <div class="card kpi"><span class="bar" style="background:var(--swirl-orange)"></span><div class="lbl">Orders placed</div><div class="val">${now30.n}</div>${d(now30.n,prev30.n)}</div>
+    <div class="card kpi"><span class="bar" style="background:var(--swirl-red)"></span><div class="lbl">Average order value</div><div class="val">${eur(now30.aov)}</div>${d(now30.aov,prev30.aov)}</div>
+    <div class="card kpi"><span class="bar" style="background:var(--swirl-magenta)"></span><div class="lbl">On-time delivery</div><div class="val">${pct(otNow)}</div>${d(otNow,otPrev)}</div>
+    <div class="card kpi"><span class="bar" style="background:var(--swirl-purple)"></span><div class="lbl">Active retailers</div><div class="val">${activeRet}<span class="dim" style="font-size:16px"> / ${retailers.length}</span></div><div class="delta dim">Ordered in the last 30 days</div></div>
+  </div>
+  <div class="grid cols-2-1" style="margin-top:18px">
+    <div class="card"><div class="card-h"><div><h3>Order value by month</h3><div class="sub">Last 12 months, excluding cancelled orders</div></div><div class="tabs" role="tablist" id="trendTabs"><button aria-selected="true" data-m="value">Value</button><button aria-selected="false" data-m="count">Orders</button></div></div><div class="card-b"><div class="chart-box"><canvas id="cTrend"></canvas></div></div></div>
+    <div class="card"><div class="card-h"><div><h3>Needs attention</h3><div class="sub">Things to action today</div></div></div><div class="card-b"><div class="alert-list">
+      <button class="alert" onclick="location.hash='orders';setTimeout(()=>setOrderTab('Pending'),0)"><span class="dot" style="background:var(--warn)"></span><div><b>${pending.length} orders awaiting approval</b><span>${stale.length} have waited more than 48 hours</span></div></button>
+      <button class="alert" onclick="location.hash='orders';setTimeout(()=>setOrderTab('Dispatched'),0)"><span class="dot" style="background:var(--swirl-purple)"></span><div><b>${orders.filter(o=>o.status==="Dispatched").length} orders out for delivery</b><span>Confirm receipt with retailers</span></div></button>
+      <button class="alert" onclick="location.hash='retailers'"><span class="dot" style="background:var(--bad)"></span><div><b>${hold.length} retailer accounts on hold</b><span>${hold.map(r=>r.name).slice(0,2).join(", ")||"None"}</span></div></button>
+      <button class="alert" onclick="location.hash='products'"><span class="dot" style="background:var(--swirl-orange)"></span><div><b>${lowStock.length} product${lowStock.length===1?"":"s"} low on stock</b><span>Fewer than 25 units available</span></div></button>
+    </div></div></div>
+  </div>
+  <div class="grid cols-3" style="margin-top:18px">
+    <div class="card"><div class="card-h"><div><h3>Orders by status</h3><div class="sub">All open and closed orders</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="cStatus"></canvas></div></div></div>
+    <div class="card"><div class="card-h"><div><h3>Top retailers</h3><div class="sub">Order value, last 90 days</div></div><a class="btn btn-ghost btn-sm" href="#retailers">View all</a></div><div class="card-b"><div class="chart-box sm"><canvas id="cTopRet"></canvas></div></div></div>
+    <div class="card"><div class="card-h"><div><h3>Spend by region</h3><div class="sub">Last 90 days</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="cRegion"></canvas></div></div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><div class="card-h"><div><h3>Recent orders</h3><div class="sub">Latest 8 orders across the network</div></div><a class="btn btn-ghost btn-sm" href="#orders">All orders</a></div>
+  <div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap">${orderTable(orders.slice(0,8))}</div></div></div>`;
+  bindOrderRows();
+  chartDefaults();
+  const cur=monthly(orders.filter(live)), cnt=monthly(orders.filter(live),()=>1);
+  const prev=cur.map((v,i)=>v*(0.8+((i*37)%11)/60));
+  const drawTrend=m=>chart("cTrend",{type:m==="value"?"line":"bar",data:{labels:MONTHS.map(mlabel),datasets:m==="value"?[{label:"This year",data:cur,borderColor:cssv("--maxol-blue"),backgroundColor:"rgba(5,99,160,.12)",fill:true,tension:.35,borderWidth:3,pointRadius:3},{label:"Same month last year",data:prev,borderColor:cssv("--swirl-orange"),borderDash:[6,5],borderWidth:2,pointRadius:0,tension:.35}]:[{label:"Orders",data:cnt,backgroundColor:cssv("--maxol-blue"),borderRadius:6}]},options:{scales:{y:m==="value"?euroAxis:{},x:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+": "+(m==="value"?eur(c.raw):c.raw)}}}}});
+  drawTrend("value");
+  document.querySelectorAll("#trendTabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#trendTabs button").forEach(x=>x.setAttribute("aria-selected",x===b));drawTrend(b.dataset.m)});
+  const sc=STATUSES.map(s=>orders.filter(o=>o.status===s).length);
+  chart("cStatus",{type:"doughnut",data:{labels:STATUSES,datasets:[{data:sc,backgroundColor:[cssv("--warn"),cssv("--maxol-blue"),cssv("--swirl-purple"),cssv("--ok"),"#9AAAB8"],borderWidth:0}]},options:{cutout:"68%",plugins:{legend:{position:"right"}}}});
+  const l90=orders.filter(o=>o.date>=new Date(TODAY-90*DAY)&&live(o));
+  const byR={};l90.forEach(o=>byR[o.retailer]=(byR[o.retailer]||0)+o.total);
+  const top=Object.entries(byR).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  chart("cTopRet",{type:"bar",data:{labels:top.map(t=>R_BY[t[0]].name.replace("Maxol ","")),datasets:[{data:top.map(t=>t[1]),backgroundColor:cssv("--maxol-blue"),borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>eur(c.raw)}}},scales:{x:euroAxis,y:{grid:{display:false}}}}});
+  const byReg={};l90.forEach(o=>{const g=R_BY[o.retailer].region;byReg[g]=(byReg[g]||0)+o.total});
+  chart("cRegion",{type:"polarArea",data:{labels:Object.keys(byReg),datasets:[{data:Object.values(byReg),backgroundColor:SC().map(c=>c+"CC"),borderWidth:0}]},options:{plugins:{legend:{position:"right"},tooltip:{callbacks:{label:c=>c.label+": "+eur(c.raw)}}},scales:{r:{ticks:{display:false}}}}});
+}
+
+/* ================= ORDERS ================= */
+function orderTable(list,opt={}){
+  if(!list.length)return `<div class="empty"><b>No orders here.</b><br>Clear the search or choose another status to see more orders.</div>`;
+  return `<table><thead><tr>${opt.select?'<th><input type="checkbox" id="selAll" aria-label="Select all"></th>':""}<th>Order no.</th><th>Order date</th>${opt.hideRetailer?"":"<th>Customer / Retailer</th>"}${opt.hideVendor?"":"<th>Vendor</th>"}<th class="num">Items</th><th class="num">Order total</th>${opt.expected?"<th>Delivery</th>":""}<th>Status</th></tr></thead><tbody>${list.map(o=>{const r=R_BY[o.retailer],v=V_BY[o.vendor];return `<tr class="click" data-order="${o.no}" tabindex="0">${opt.select?`<td><input type="checkbox" data-sel="${o.no}" ${opt.selected&&opt.selected.has(o.no)?"checked":""} aria-label="Select ${o.no}"></td>`:""}<td class="strong">${o.no}</td><td>${fdt(o.date)}</td>${opt.hideRetailer?"":`<td><div class="ret-cell"><span class="mono-av" style="background:${r.color}">${initials(r.name)}</span><div><div class="strong">${esc(r.name)}</div><div class="dim" style="font-size:12.5px">${r.code} · ${r.county}</div></div></div></td>`}${opt.hideVendor?"":`<td>${esc(v.name)}</td>`}<td class="num">${units(o)}</td><td class="num strong">${v.free?'<span class="dim">No charge</span>':eur2(o.total)}</td>${opt.expected?`<td>${o.status==="Delivered"?"Delivered "+fdate(o.delivered):o.status==="Cancelled"?"–":"Due "+fdate(o.promised)}</td>`:""}<td>${badge(o.status)}</td></tr>`}).join("")}</tbody></table>`}
+function bindOrderRows(){document.querySelectorAll("[data-order]").forEach(tr=>{tr.onclick=e=>{if(e.target.closest("input"))return;openOrder(tr.dataset.order)};tr.onkeydown=e=>{if(e.key==="Enter"&&!e.target.closest("input"))openOrder(tr.dataset.order)}})}
+const OS={tab:"All",q:"",vendor:"",region:"",page:0,size:15};
+function setOrderTab(t){OS.tab=t;OS.page=0;drawOrders()}
+function renderOrders(){
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Trading</div><h1>Orders</h1><p>Review, approve and track retailer orders placed with vendors.</p></div><div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="toast('Export to CSV runs in the live system')">Export CSV</button><button class="btn btn-primary" onclick="openNewOrder()">+ New order</button></div></div>
+  <div class="card"><div class="toolbar"><div class="tabs" id="otabs" role="tablist"></div></div>
+  <div class="toolbar"><input class="input grow" id="oq" placeholder="Search by order no., retailer or PO" value="${esc(OS.q)}">
+  <select class="select" id="ov"><option value="">All vendors</option>${vendors.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join("")}</select>
+  <select class="select" id="or"><option value="">All regions</option>${[...new Set(retailers.map(r=>r.region))].map(g=>`<option>${g}</option>`).join("")}</select></div>
+  <div class="tbl-wrap" id="otable"></div><div class="pager" id="opager"></div></div>`;
+  $("#ov").value=OS.vendor;$("#or").value=OS.region;
+  $("#oq").oninput=e=>{OS.q=e.target.value;OS.page=0;drawOrders()};
+  $("#ov").onchange=e=>{OS.vendor=e.target.value;OS.page=0;drawOrders()};
+  $("#or").onchange=e=>{OS.region=e.target.value;OS.page=0;drawOrders()};
+  drawOrders();
+}
+function drawOrders(){
+  if(!$("#otabs"))return;
+  const base=orders.filter(o=>{const r=R_BY[o.retailer];const q=OS.q.toLowerCase();return(!OS.vendor||o.vendor===OS.vendor)&&(!OS.region||r.region===OS.region)&&(!q||o.no.toLowerCase().includes(q)||r.name.toLowerCase().includes(q)||o.po.toLowerCase().includes(q)||r.code.toLowerCase().includes(q))});
+  $("#otabs").innerHTML=["All",...STATUSES].map(s=>`<button role="tab" aria-selected="${OS.tab===s}" data-t="${s}">${s}<span class="n">${s==="All"?base.length:base.filter(o=>o.status===s).length}</span></button>`).join("");
+  $("#otabs").querySelectorAll("button").forEach(b=>b.onclick=()=>setOrderTab(b.dataset.t));
+  const list=OS.tab==="All"?base:base.filter(o=>o.status===OS.tab);
+  const pages=Math.max(1,Math.ceil(list.length/OS.size));OS.page=Math.min(OS.page,pages-1);
+  $("#otable").innerHTML=orderTable(list.slice(OS.page*OS.size,(OS.page+1)*OS.size));bindOrderRows();
+  const tot=list.filter(live).reduce((s,o)=>s+o.total,0);
+  $("#opager").innerHTML=`<span>Showing ${list.length?OS.page*OS.size+1:0}–${Math.min(list.length,(OS.page+1)*OS.size)} of ${list.length} orders · value ${eur(tot)}</span><div class="btns"><button class="btn btn-ghost btn-sm" ${OS.page===0?"disabled":""} id="pp">Previous</button><button class="btn btn-ghost btn-sm" ${OS.page>=pages-1?"disabled":""} id="pn">Next</button></div>`;
+  $("#pp").onclick=()=>{OS.page--;drawOrders()};$("#pn").onclick=()=>{OS.page++;drawOrders()};
+}
+function openDrawer(html){$("#drawer").innerHTML=html;$("#drawer").classList.add("open");$("#scrim").classList.add("open");const c=$("#drawer .close");c&&c.focus()}
+function closeDrawer(){$("#drawer").classList.remove("open");if(!$("#side").classList.contains("open"))$("#scrim").classList.remove("open");Object.keys(charts).filter(k=>k.startsWith("d_")).forEach(k=>{charts[k].destroy();delete charts[k]})}
+const closeBtn=`<button class="iconbtn close" onclick="closeDrawer()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+function openOrder(no){
+  const o=orders.find(x=>x.no===no);const r=R_BY[o.retailer],v=V_BY[o.vendor];
+  const steps=["Pending","Approved","Dispatched","Delivered"];const si=steps.indexOf(o.status);
+  const vat=o.total*.23;const free=v.free;
+  const adminActions=o.status==="Pending"?`<button class="btn btn-danger" onclick="setStatus('${o.no}','Cancelled')">Cancel order</button><button class="btn btn-primary" onclick="setStatus('${o.no}','Approved')">Approve order</button>`:o.status==="Approved"?`<button class="btn btn-danger" onclick="setStatus('${o.no}','Cancelled')">Cancel order</button><button class="btn btn-blue" onclick="setStatus('${o.no}','Dispatched')">Mark as dispatched</button>`:o.status==="Dispatched"?`<button class="btn btn-primary" onclick="setStatus('${o.no}','Delivered')">Mark as delivered</button>`:`<button class="btn btn-ghost" onclick="toast('Invoice PDF opens in the live system')">View invoice</button>`;
+  const A=ROLE.role;
+  const actions=A==="admin"?adminActions:A==="retailer"?(o.status==="Pending"?`<button class="btn btn-danger" onclick="setStatus('${o.no}','Cancelled')">Cancel order</button>`:o.status==="Dispatched"?`<button class="btn btn-primary" onclick="setStatus('${o.no}','Delivered')">Confirm delivery received</button>`:o.status==="Delivered"?`<button class="btn btn-primary" onclick="closeDrawer();reorder('${o.no}')">Order again</button>`:`<span class="dim" style="align-self:center">${o.status==="Approved"?"Approved – the vendor is preparing your order":""}</span>`)
+   :(o.status==="Approved"?`<button class="btn btn-primary" onclick="openDispatch(['${o.no}'])">Mark as dispatched</button>`:o.status==="Dispatched"?`<button class="btn btn-primary" onclick="setStatus('${o.no}','Delivered')">Mark as delivered</button>`:o.status==="Pending"?`<span class="dim" style="align-self:center">Waiting for Maxol to approve this order</span>`:`<button class="btn btn-ghost" onclick="toast('Delivery note PDF downloads in the live system')">Delivery note</button>`);
+  const link=(fn,id,label)=>A==="admin"?`<a href="#" onclick="event.preventDefault();${fn}('${id}')">${label}</a>`:label;
+  openDrawer(`<div class="drawer-h"><div><div class="crumbs">Order details</div><h2 id="drawerTitle">${o.no}</h2><div style="margin-top:6px">${badge(o.status)}</div></div>${closeBtn}</div>
+  <div class="drawer-b">
+   ${o.status==="Cancelled"?`<div class="insight" style="margin-bottom:16px"><p>This order was cancelled and is excluded from reporting totals.</p></div>`:`<ol class="timeline" aria-label="Order progress">${steps.map((s,i)=>`<li class="${i<si?"done":i===si?"done now":""}">${s}</li>`).join("")}</ol>`}
+   <div class="dl" style="margin-top:22px">
+    <div><small>Customer / Retailer</small><span>${link("openRetailer",r.id,esc(r.name))}</span><div class="dim" style="font-size:13px">${r.code} · ${r.county}</div></div>
+    <div><small>Vendor</small><span>${link("openVendor",v.id,esc(v.name))}</span><div class="dim" style="font-size:13px">${v.category}</div></div>
+    <div><small>Order date</small><span>${fdt(o.date)}</span></div>
+    <div><small>${o.delivered?"Delivered":"Expected delivery"}</small><span>${fdate(o.delivered||o.promised)}</span></div>
+    <div><small>Purchase order</small><span>${o.po}</span></div>
+    <div><small>Payment terms</small><span>${v.terms}</span></div>
+    ${o.tracking?`<div><small>Courier</small><span>${o.courier}</span></div><div><small>Tracking number</small><span>${o.tracking}</span></div>`:""}
+    ${o.note?`<div style="grid-column:1/-1"><small>Delivery notes</small><span>${esc(o.note)}</span></div>`:""}
+   </div>
+   <div class="section-t">Order items</div>
+   <div class="tbl-wrap card" style="box-shadow:none"><table><thead><tr><th>Product</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Line total</th></tr></thead><tbody>${o.lines.map(l=>`<tr><td><div class="strong">${esc(l.name)}</div><div class="dim" style="font-size:12.5px">${l.sku}</div></td><td class="num">${l.qty}</td><td class="num">${free?"No charge":eur2(l.price)}</td><td class="num strong">${free?"–":eur2(l.qty*l.price)}</td></tr>`).join("")}
+   ${free?`<tr><td colspan="3" class="num strong">Order total</td><td class="num strong">No charge</td></tr>`:`<tr><td colspan="3" class="num dim">Subtotal</td><td class="num">${eur2(o.total)}</td></tr><tr><td colspan="3" class="num dim">VAT (23%)</td><td class="num">${eur2(vat)}</td></tr><tr><td colspan="3" class="num strong">Order total</td><td class="num strong" style="font-size:16px">${eur2(o.total+vat)}</td></tr>`}</tbody></table></div>
+   <div class="section-t">Delivery contact</div><p style="margin:0">${esc(r.contact)} · ${r.phone}<br><span class="dim">${r.email}</span></p>
+  </div><div class="drawer-f">${actions}</div>`);
+}
+function setStatus(no,s){const o=orders.find(x=>x.no===no);o.status=s;if(s==="Delivered")o.delivered=NOW();toast(`${no} ${s==="Cancelled"?"cancelled":"marked as "+s.toLowerCase()}`);openOrder(no);refreshView()}
+function openNewOrder(){
+  $("#modalBox").innerHTML=`<div class="drawer-h"><div><h2>New order</h2><p class="dim" style="margin:4px 0 0">Place an order on behalf of a retailer.</p></div><button class="iconbtn" onclick="closeModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="drawer-b"><div class="form-grid">
+   <div class="field"><label for="nr">Customer / Retailer</label><select class="select" id="nr">${retailers.filter(r=>r.status==="Active").map(r=>`<option value="${r.id}">${esc(r.name)} (${r.code})</option>`).join("")}</select></div>
+   <div class="field"><label for="nv">Vendor</label><select class="select" id="nv">${vendors.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join("")}</select></div>
+   <div class="field"><label for="np">Product</label><select class="select" id="np"></select></div>
+   <div class="field"><label for="nq">Quantity</label><input class="input" id="nq" type="number" min="1" value="6"></div>
+   <div class="field" style="grid-column:1/-1"><label for="nn">Order notes</label><input class="input" id="nn" placeholder="Optional delivery instructions"></div>
+  </div><div class="insight"><p id="nsum"></p></div></div>
+  <div class="drawer-f"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="nsave">Place order</button></div>`;
+  $("#modal").classList.add("open");$("#scrim").classList.add("open");
+  const fillP=()=>{$("#np").innerHTML=products.filter(p=>p.vendor===$("#nv").value).map(p=>`<option value="${p.sku}">${esc(p.name)} – ${p.price?eur2(p.price):"No charge"}</option>`).join("");sum()};
+  const sum=()=>{const p=products.find(x=>x.sku===$("#np").value);const q=Math.max(1,+$("#nq").value||1);$("#nsum").textContent=`${p.price?"Order total "+eur2(p.price*q)+" excluding VAT":"No charge – supplied by The Maxol Group"}. Expected delivery ${fdate(new Date(Date.now()+(V_BY[$("#nv").value].leadDays+1)*DAY))}.`};
+  $("#nv").onchange=fillP;$("#np").onchange=sum;$("#nq").oninput=sum;fillP();
+  $("#nsave").onclick=()=>{const p=products.find(x=>x.sku===$("#np").value);const q=Math.max(1,+$("#nq").value||1);const v=V_BY[$("#nv").value];const no="ORD-"+(24310+orders.length);orders.unshift({no,date:NOW(),retailer:$("#nr").value,vendor:v.id,lines:[{sku:p.sku,name:p.name,qty:q,price:p.price}],total:p.price*q,status:"Pending",promised:new Date(Date.now()+(v.leadDays+1)*DAY),delivered:null,po:"PO"+ri(100000,999999)});closeModal();toast(`Order ${no} placed`);refreshView()};
+}
+function closeModal(){$("#modal").classList.remove("open");$("#scrim").classList.remove("open")}
+
+/* ================= RETAILERS ================= */
+const RS={q:"",region:"",type:"",sort:"spend"};
+function retStats(r){const l=orders.filter(o=>o.retailer===r.id&&live(o));const last=l[0]?l[0].date:null;const y=l.filter(o=>o.date>=new Date(TODAY-365*DAY));return{n:l.length,spend:y.reduce((s,o)=>s+o.total,0),last,aov:l.length?l.reduce((s,o)=>s+o.total,0)/l.length:0}}
+function renderRetailers(){
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Trading</div><h1>Customers / Retailers</h1><p>Every Maxol site that orders through the portal.</p></div><button class="btn btn-primary" onclick="toast('Add retailer opens the onboarding form in the live system')">+ Add retailer</button></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px" id="rkpi"></div>
+  <div class="card"><div class="toolbar"><input class="input grow" id="rq" placeholder="Search by name, account code or county">
+  <select class="select" id="rr"><option value="">All regions</option>${[...new Set(retailers.map(r=>r.region))].map(g=>`<option>${g}</option>`).join("")}</select>
+  <select class="select" id="rt"><option value="">All site types</option><option>Company-owned</option><option>Dealer</option></select>
+  <select class="select" id="rs" aria-label="Sort by"><option value="spend">Sort: highest spend</option><option value="name">Sort: name A–Z</option><option value="recent">Sort: most recent order</option></select></div>
+  <div class="tbl-wrap" id="rtable"></div></div>`;
+  const all=retailers.map(r=>({r,s:retStats(r)}));
+  const tot=all.reduce((a,x)=>a+x.s.spend,0);
+  $("#rkpi").innerHTML=`<div class="card kpi hero-kpi"><div class="lbl">Retailer spend · 12 months</div><div class="val">${kfmt(tot)}</div></div>
+  <div class="card kpi"><span class="bar" style="background:var(--swirl-orange)"></span><div class="lbl">Retail sites</div><div class="val">${retailers.length}</div><div class="delta dim">${retailers.filter(r=>r.type==="Dealer").length} dealer · ${retailers.filter(r=>r.type!=="Dealer").length} company-owned</div></div>
+  <div class="card kpi"><span class="bar" style="background:var(--swirl-red)"></span><div class="lbl">Average spend per site</div><div class="val">${kfmt(tot/retailers.length)}</div></div>
+  <div class="card kpi"><span class="bar" style="background:var(--swirl-purple)"></span><div class="lbl">Accounts on hold</div><div class="val">${retailers.filter(r=>r.status!=="Active").length}</div></div>`;
+  const draw=()=>{const q=RS.q.toLowerCase();let l=all.filter(({r})=>(!RS.region||r.region===RS.region)&&(!RS.type||r.type===RS.type)&&(!q||(r.name+r.code+r.county).toLowerCase().includes(q)));
+   l.sort((a,b)=>RS.sort==="name"?a.r.name.localeCompare(b.r.name):RS.sort==="recent"?(b.s.last||0)-(a.s.last||0):b.s.spend-a.s.spend);
+   const max=Math.max(...all.map(x=>x.s.spend));
+   $("#rtable").innerHTML=l.length?`<table><thead><tr><th>Customer / Retailer</th><th>Region</th><th>Site type</th><th class="num">Orders</th><th>Spend · 12 months</th><th>Last order</th><th>Status</th></tr></thead><tbody>${l.map(({r,s})=>`<tr class="click" data-ret="${r.id}" tabindex="0"><td><div class="ret-cell"><span class="mono-av" style="background:${r.color}">${initials(r.name)}</span><div><div class="strong">${esc(r.name)}</div><div class="dim" style="font-size:12.5px">${r.code} · ${r.county}</div></div></div></td><td>${r.region}</td><td>${r.type}</td><td class="num">${s.n}</td><td><div style="display:flex;align-items:center;gap:10px"><div class="meter" style="width:90px"><i style="width:${s.spend/max*100}%"></i></div><span class="strong">${eur(s.spend)}</span></div></td><td>${s.last?fdate(s.last):"–"}</td><td>${badge(r.status==="Active"?"Active":"Hold").replace(">Hold<",">On hold<")}</td></tr>`).join("")}</tbody></table>`:`<div class="empty"><b>No retailers match.</b><br>Try a different name, region or site type.</div>`;
+   document.querySelectorAll("[data-ret]").forEach(tr=>{tr.onclick=()=>openRetailer(tr.dataset.ret);tr.onkeydown=e=>{if(e.key==="Enter")openRetailer(tr.dataset.ret)}})};
+  $("#rq").oninput=e=>{RS.q=e.target.value;draw()};$("#rr").onchange=e=>{RS.region=e.target.value;draw()};$("#rt").onchange=e=>{RS.type=e.target.value;draw()};$("#rs").onchange=e=>{RS.sort=e.target.value;draw()};
+  draw();
+}
+function openRetailer(id){
+  const r=R_BY[id],s=retStats(r);const l=orders.filter(o=>o.retailer===id);
+  const byV={};l.filter(live).forEach(o=>byV[o.vendor]=(byV[o.vendor]||0)+1);
+  openDrawer(`<div class="drawer-h"><div class="ret-cell"><span class="mono-av" style="background:${r.color};width:48px;height:48px;font-size:17px;border-radius:12px">${initials(r.name)}</span><div><h2 id="drawerTitle">${esc(r.name)}</h2><div class="dim">${r.code} · ${r.type} · ${r.county}</div></div></div>${closeBtn}</div>
+  <div class="drawer-b"><div class="roi-big" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px"><div class="accent"><small>Spend · 12 months</small><b>${kfmt(s.spend)}</b></div><div><small>Orders</small><b>${s.n}</b></div><div><small>Avg order</small><b>${eur(s.aov)}</b></div></div>
+  <div class="section-t">Monthly spend</div><div class="chart-box xs"><canvas id="d_rspend"></canvas></div>
+  <div class="section-t">Orders by vendor</div><div class="chart-box xs"><canvas id="d_rvend"></canvas></div>
+  <div class="dl" style="margin-top:18px"><div><small>Store contact</small><span>${esc(r.contact)}</span></div><div><small>Phone</small><span>${r.phone}</span></div><div><small>Ordering email</small><span style="word-break:break-all">${r.email}</span></div><div><small>Retailer since</small><span>${r.since}</span></div></div>
+  <div class="section-t">Recent orders</div><div class="tbl-wrap card" style="box-shadow:none"><table><tbody>${l.slice(0,6).map(o=>`<tr class="click" onclick="openOrder('${o.no}')"><td class="strong">${o.no}</td><td>${fdate(o.date)}</td><td class="num">${eur2(o.total)}</td><td>${badge(o.status)}</td></tr>`).join("")||`<tr><td class="dim">No orders yet</td></tr>`}</tbody></table></div></div>
+  <div class="drawer-f"><button class="btn btn-ghost" onclick="setRole('retailer','${id}')">Open retailer portal</button><button class="btn btn-ghost" onclick="toast('Edit retailer opens in the live system')">Edit details</button><button class="btn btn-primary" onclick="closeDrawer();openNewOrder();setTimeout(()=>{$('#nr').value='${id}'},0)">+ New order</button></div>`);
+  chartDefaults();
+  chart("d_rspend",{type:"bar",data:{labels:MONTHS.map(mlabel),datasets:[{data:monthly(l.filter(live)),backgroundColor:r.color,borderRadius:5}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>eur(c.raw)}}},scales:{y:euroAxis,x:{grid:{display:false}}}}});
+  const vs=Object.entries(byV).sort((a,b)=>b[1]-a[1]);
+  chart("d_rvend",{type:"bar",data:{labels:vs.map(v=>V_BY[v[0]].short),datasets:[{data:vs.map(v=>v[1]),backgroundColor:vs.map(v=>V_BY[v[0]].color),borderRadius:5}]},options:{indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+" orders"}}},scales:{x:{ticks:{precision:0}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+}
+
+/* ================= VENDORS ================= */
+function venStats(v){const l=orders.filter(o=>o.vendor===v.id);const lv=l.filter(live);return{units:lv.reduce((s,o)=>s+o.lines.reduce((a,x)=>a+x.qty,0),0),n:l.length,rev:lv.filter(o=>o.date>=new Date(TODAY-365*DAY)).reduce((s,o)=>s+o.total,0),ot:onTime(l),retailers:new Set(lv.map(o=>o.retailer)).size,cancel:l.length?l.filter(o=>o.status==="Cancelled").length/l.length:0,open:l.filter(o=>["Pending","Approved","Dispatched"].includes(o.status)).length}}
+function renderVendors(){
+  const all=vendors.map(v=>({v,s:venStats(v)})).sort((a,b)=>b.s.n-a.s.n);
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Trading</div><h1>Vendors</h1><p>The four suppliers retailers order from, with delivery performance at a glance.</p></div><button class="btn btn-primary" onclick="toast('Add vendor opens in the live system')">+ Add vendor</button></div>
+  <div class="card" style="margin-bottom:18px"><div class="card-h"><div><h3>Orders vs. on-time delivery</h3><div class="sub">Last 12 months · bubble size shows units supplied</div></div></div><div class="card-b"><div class="chart-box"><canvas id="cVen"></canvas></div></div></div>
+  <div class="grid vendor-grid">${all.map(({v,s})=>`<button class="vcard" onclick="openVendor('${v.id}')"><div class="top-row"><span class="mono-av" style="background:${v.color};width:40px;height:40px">${initials(v.name)}</span><div><h3>${esc(v.name)}</h3><div class="cat">${v.category}</div></div></div>
+   <div class="vstats"><div><b>${v.free?s.units.toLocaleString("en-IE"):kfmt(s.rev)}</b><small>${v.free?"Units · no charge":"12-month value"}</small></div><div><b style="color:${s.ot>.93?"var(--ok)":s.ot>.88?"var(--warn)":"var(--bad)"}">${pct(s.ot)}</b><small>On time</small></div><div><b>${s.open}</b><small>Open orders</small></div></div>
+   <div><div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-3);margin-bottom:4px"><span>Serves ${s.retailers} of ${retailers.length} retailers</span><span>${v.terms}</span></div><div class="meter"><i style="width:${s.retailers/retailers.length*100}%;background:${v.color}"></i></div></div></button>`).join("")}</div>`;
+  chartDefaults();
+  const mxU=Math.max(...all.map(x=>x.s.units));chart("cVen",{type:"bubble",data:{datasets:all.map(({v,s},i)=>({label:v.name,data:[{x:s.n,y:s.ot*100,r:10+s.units/mxU*24,u:s.units}],backgroundColor:v.color+"B3",borderColor:v.color}))},options:{plugins:{legend:{position:"right",labels:{font:{size:12}}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.x} orders, ${c.raw.u.toLocaleString("en-IE")} units, ${c.raw.y.toFixed(1)}% on time`}}},scales:{x:{beginAtZero:true,title:{display:true,text:"Orders · 12 months"}},y:{title:{display:true,text:"On-time delivery %"},suggestedMin:80,suggestedMax:100}}}});
+}
+function openVendor(id){
+  const v=V_BY[id],s=venStats(v);const l=orders.filter(o=>o.vendor===id);
+  openDrawer(`<div class="drawer-h"><div class="ret-cell"><span class="mono-av" style="background:${v.color};width:48px;height:48px;font-size:17px;border-radius:12px">${initials(v.name)}</span><div><h2 id="drawerTitle">${esc(v.name)}</h2><div class="dim">${v.id} · ${v.category}</div></div></div>${closeBtn}</div>
+  <div class="drawer-b"><div class="roi-big" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px"><div class="accent"><small>${v.free?"Units supplied · no charge":"12-month value"}</small><b>${v.free?s.units.toLocaleString("en-IE"):kfmt(s.rev)}</b></div><div><small>On-time delivery</small><b>${pct(s.ot)}</b></div><div><small>Cancellation rate</small><b>${pct(s.cancel)}</b></div></div>
+  <div class="section-t">Orders by month</div><div class="chart-box xs"><canvas id="d_vm"></canvas></div>
+  <div class="dl" style="margin-top:18px"><div style="grid-column:1/-1"><small>Main responsibilities</small><span>${v.category}</span></div><div><small>Account manager</small><span>${esc(v.contact)}</span></div><div><small>Standard lead time</small><span>${v.leadDays} working day${v.leadDays>1?"s":""}</span></div><div><small>Payment terms</small><span>${v.terms}</span></div><div><small>Products listed</small><span>${products.filter(p=>p.vendor===id).length}</span></div></div>
+  <div class="section-t">Products</div><div class="tbl-wrap card" style="box-shadow:none"><table><tbody>${products.filter(p=>p.vendor===id).map(p=>`<tr><td><div class="strong">${esc(p.name)}</div><div class="dim" style="font-size:12.5px">${p.sku}</div></td><td class="num">${p.price?eur2(p.price):"No charge"}</td></tr>`).join("")}</tbody></table></div></div>
+  <div class="drawer-f"><button class="btn btn-ghost" onclick="setRole('vendor','${id}')">Open vendor portal</button><button class="btn btn-ghost" onclick="toast('Edit vendor opens in the live system')">Edit vendor</button><button class="btn btn-blue" onclick="closeDrawer();OS.vendor='${id}';OS.tab='All';location.hash='orders'">View orders</button></div>`);
+  chartDefaults();
+  chart("d_vm",{type:"line",data:{labels:MONTHS.map(mlabel),datasets:[{data:monthly(l.filter(live),()=>1),borderColor:v.color,backgroundColor:v.color+"22",fill:true,tension:.35,pointRadius:2}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0}}}}});
+}
+
+/* ================= PRODUCTS ================= */
+function renderProducts(){
+  const sold={};orders.filter(live).forEach(o=>o.lines.forEach(l=>sold[l.sku]=(sold[l.sku]||0)+l.qty));
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Trading</div><h1>Products</h1><p>The catalogue retailers can order from, across the four vendors.</p></div><button class="btn btn-primary" onclick="toast('Add product opens in the live system')">+ Add product</button></div>
+  <div class="card"><div class="toolbar"><input class="input grow" id="pq" placeholder="Search products or SKU"><select class="select" id="pv"><option value="">All vendors</option>${vendors.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join("")}</select></div><div class="tbl-wrap" id="ptable"></div></div>`;
+  const draw=()=>{const q=$("#pq").value.toLowerCase(),vv=$("#pv").value;const l=products.filter(p=>(!vv||p.vendor===vv)&&(!q||(p.name+p.sku).toLowerCase().includes(q)));
+   $("#ptable").innerHTML=`<table><thead><tr><th>Product</th><th>Vendor</th><th>Supplies</th><th class="num">Unit price</th><th class="num">Units ordered · 12 months</th><th class="num">Stock</th></tr></thead><tbody>${l.map(p=>{const v=V_BY[p.vendor];return `<tr><td><div class="strong">${esc(p.name)}</div><div class="dim" style="font-size:12.5px">${p.sku}</div></td><td>${esc(v.short)}</td><td>${v.category}</td><td class="num">${p.price?eur2(p.price):"No charge"}</td><td class="num">${(sold[p.sku]||0).toLocaleString("en-IE")}</td><td class="num">${p.stock<25?`<span class="badge s-Pending">${p.stock} low</span>`:p.stock}</td></tr>`}).join("")}</tbody></table>`};
+  $("#pq").oninput=draw;$("#pv").onchange=draw;draw();
+}
+
+/* ================= REPORTS ================= */
+const REPORTS=[["sales","Sales summary","Order value and volume over time"],["retailer","Retailer performance","Spend, frequency and growth by site"],["vendor","Vendor performance","Value, delivery and cancellations"],["product","Product mix","What retailers are buying"],["fulfilment","Fulfilment & SLA","Approval and delivery times"],["roi","ROI of the new system","Savings from the redesign and migration"]];
+let REP="sales", RANGE=12;
+function renderReports(){
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Insight</div><h1>Reports &amp; ROI</h1><p>Ready-made reports for the network. Choose a report, set the period, export when needed.</p></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select class="select" id="range" aria-label="Report period" style="width:auto"><option value="3">Last 3 months</option><option value="6">Last 6 months</option><option value="12" selected>Last 12 months</option></select><button class="btn btn-ghost" onclick="toast('PDF report export runs in the live system')">Export PDF</button><button class="btn btn-ghost" onclick="toast('Excel export runs in the live system')">Export Excel</button></div></div>
+  <div class="rep-layout"><div class="card rep-nav" id="repnav"></div><div id="repbody" class="grid"></div></div>`;
+  $("#range").value=RANGE;$("#range").onchange=e=>{RANGE=+e.target.value;drawReport()};
+  drawReport();
+}
+function drawReport(){
+  $("#repnav").innerHTML=REPORTS.map(r=>`<button aria-current="${REP===r[0]}" data-r="${r[0]}"><b>${r[1]}</b><span>${r[2]}</span></button>`).join("");
+  $("#repnav").querySelectorAll("button").forEach(b=>b.onclick=()=>{REP=b.dataset.r;drawReport()});
+  Object.keys(charts).forEach(k=>{charts[k].destroy();delete charts[k]});
+  $("#range").disabled=REP==="roi";
+  const from=new Date(TODAY.getFullYear(),TODAY.getMonth()-RANGE+1,1);
+  const L=orders.filter(o=>o.date>=from), LV=L.filter(live);
+  const months=MONTHS.slice(12-RANGE);
+  const mon=(list,fn=o=>o.total)=>{const m=Object.fromEntries(months.map(d=>[mkey(d),0]));list.forEach(o=>{const k=mkey(o.date);if(k in m)m[k]+=fn(o)});return months.map(d=>m[mkey(d)])};
+  const B=$("#repbody");chartDefaults();
+  const head=(t,s)=>`<div class="card"><div class="card-h"><div><h3>${t}</h3><div class="sub">${s}</div></div></div>`;
+  if(REP==="sales"){
+    const rev=LV.reduce((s,o)=>s+o.total,0);const mv=mon(LV);const best=mv.indexOf(Math.max(...mv));
+    B.innerHTML=`<div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))"><div class="card kpi hero-kpi"><div class="lbl">Total order value</div><div class="val">${kfmt(rev)}</div></div><div class="card kpi"><div class="lbl">Orders</div><div class="val">${LV.length}</div></div><div class="card kpi"><div class="lbl">Average order value</div><div class="val">${eur(rev/LV.length)}</div></div><div class="card kpi"><div class="lbl">VAT collected (23%)</div><div class="val">${kfmt(rev*.23)}</div></div></div>
+    <div class="insight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg><p><b>${mlabel(months[best])} was the strongest month</b> at ${eur(mv[best])}. Average monthly order value over the period was ${eur(rev/months.length)}. ${pct(LV.filter(o=>V_BY[o.vendor].free).length/LV.length)} of orders were no-charge items from The Maxol Group and are counted in volume, not value.</p></div>
+    ${head("Order value and orders by month","Bars show value, line shows number of orders")}<div class="card-b"><div class="chart-box"><canvas id="r1"></canvas></div></div></div>
+    <div class="grid cols-1-1">${head("Orders by vendor","Share of orders placed")}<div class="card-b"><div class="chart-box sm"><canvas id="r2"></canvas></div></div></div>${head("Value by region","Order value per region")}<div class="card-b"><div class="chart-box sm"><canvas id="r3"></canvas></div></div></div></div>
+    ${head("Monthly breakdown","Figures exclude cancelled orders")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Month</th><th class="num">Orders</th><th class="num">Order value</th><th class="num">Avg order</th><th class="num">Change</th></tr></thead><tbody>${months.map((m,i)=>{const n=mon(LV,()=>1)[i];const ch=i?((mv[i]-mv[i-1])/mv[i-1]):0;return `<tr><td class="strong">${m.toLocaleDateString("en-IE",{month:"long",year:"numeric"})}</td><td class="num">${n}</td><td class="num">${eur(mv[i])}</td><td class="num">${n?eur(mv[i]/n):"–"}</td><td class="num" style="color:${ch>=0?"var(--ok)":"var(--bad)"}">${i?(ch>=0?"+":"")+(ch*100).toFixed(1)+"%":"–"}</td></tr>`}).join("")}</tbody></table></div></div></div>`;
+    chart("r1",{data:{labels:months.map(mlabel),datasets:[{type:"bar",label:"Order value",data:mv,backgroundColor:cssv("--maxol-blue"),borderRadius:6,yAxisID:"y"},{type:"line",label:"Orders",data:mon(LV,()=>1),borderColor:cssv("--swirl-orange"),backgroundColor:cssv("--swirl-orange"),tension:.35,yAxisID:"y1",borderWidth:3}]},options:{scales:{y:euroAxis,y1:{position:"right",grid:{display:false},beginAtZero:true},x:{grid:{display:false}}}}});
+    chart("r2",{type:"doughnut",data:{labels:vendors.map(v=>v.short),datasets:[{data:vendors.map(v=>LV.filter(o=>o.vendor===v.id).length),backgroundColor:vendors.map(v=>v.color),borderWidth:0}]},options:{cutout:"60%",plugins:{legend:{position:"right"},tooltip:{callbacks:{label:c=>c.label+": "+c.raw+" orders"}}}}});
+    const regs=[...new Set(retailers.map(r=>r.region))];
+    chart("r3",{type:"bar",data:{labels:regs,datasets:[{data:regs.map(g=>LV.filter(o=>R_BY[o.retailer].region===g).reduce((s,o)=>s+o.total,0)),backgroundColor:SC(),borderRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>eur(c.raw)}}},scales:{y:euroAxis,x:{grid:{display:false}}}}});
+  }
+  if(REP==="retailer"){
+    const half=new Date(TODAY.getFullYear(),TODAY.getMonth()-Math.floor(RANGE/2)+1,1);
+    const rows=retailers.map(r=>{const l=LV.filter(o=>o.retailer===r.id);const a=l.filter(o=>o.date<half).reduce((s,o)=>s+o.total,0),b=l.filter(o=>o.date>=half).reduce((s,o)=>s+o.total,0);return{r,n:l.length,v:a+b,g:a?(b-a)/a:0,f:l.length/RANGE}}).sort((a,b)=>b.v-a.v);
+    const grow=[...rows].sort((a,b)=>b.g-a.g);
+    B.innerHTML=`<div class="insight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg><p><b>${rows[0].r.name}</b> is the highest-spending site. <b>${grow[0].r.name}</b> grew fastest (+${(grow[0].g*100).toFixed(0)}% in the second half of the period), while <b>${grow[grow.length-1].r.name}</b> declined most – worth a call from the area manager.</p></div>
+    ${head("Spend by retailer","Ranked by order value")}<div class="card-b"><div class="chart-box" style="height:${Math.max(320,rows.length*22)}px"><canvas id="r1"></canvas></div></div></div>
+    ${head("Retailer league table","Growth compares the second half of the period with the first")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Rank</th><th>Customer / Retailer</th><th>Region</th><th class="num">Orders</th><th class="num">Orders per month</th><th class="num">Order value</th><th class="num">Growth</th></tr></thead><tbody>${rows.map((x,i)=>`<tr class="click" onclick="openRetailer('${x.r.id}')"><td class="dim">${i+1}</td><td class="strong">${esc(x.r.name)}</td><td>${x.r.region}</td><td class="num">${x.n}</td><td class="num">${x.f.toFixed(1)}</td><td class="num strong">${eur(x.v)}</td><td class="num" style="color:${x.g>=0?"var(--ok)":"var(--bad)"}">${(x.g>=0?"+":"")+(x.g*100).toFixed(1)}%</td></tr>`).join("")}</tbody></table></div></div></div>`;
+    chart("r1",{type:"bar",data:{labels:rows.map(x=>x.r.name.replace("Maxol ","")),datasets:[{data:rows.map(x=>x.v),backgroundColor:rows.map(x=>x.r.color),borderRadius:5}]},options:{indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>eur(c.raw)}}},scales:{x:euroAxis,y:{grid:{display:false}}}}});
+  }
+  if(REP==="vendor"){
+    const rows=vendors.map(v=>{const l=L.filter(o=>o.vendor===v.id);const lv=l.filter(live);return{v,u:lv.reduce((s,o)=>s+o.lines.reduce((a,x)=>a+x.qty,0),0),n:l.length,val:lv.reduce((s,o)=>s+o.total,0),ot:onTime(l),c:l.length?l.filter(o=>o.status==="Cancelled").length/l.length:0}}).sort((a,b)=>b.n-a.n);
+    const worst=[...rows].sort((a,b)=>a.ot-b.ot)[0];
+    B.innerHTML=`<div class="insight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg><p><b>${worst.v.name}</b> has the lowest on-time delivery at ${pct(worst.ot)}. Raise this at the next supplier review.</p></div>
+    <div class="grid cols-1-1">${head("Orders and units by vendor","Selected period")}<div class="card-b"><div class="chart-box"><canvas id="r1"></canvas></div></div></div>${head("On-time delivery by vendor","Target: 95%")}<div class="card-b"><div class="chart-box"><canvas id="r2"></canvas></div></div></div></div>
+    ${head("Vendor scorecard","Selected period")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Vendor</th><th>Main responsibilities</th><th class="num">Orders</th><th class="num">Units</th><th class="num">Order value</th><th class="num">On time</th><th class="num">Cancelled</th></tr></thead><tbody>${rows.map(x=>`<tr class="click" onclick="openVendor('${x.v.id}')"><td class="strong">${esc(x.v.name)}</td><td>${x.v.category}</td><td class="num">${x.n}</td><td class="num">${x.u.toLocaleString("en-IE")}</td><td class="num strong">${x.v.free?"No charge":eur(x.val)}</td><td class="num" style="color:${x.ot>=.95?"var(--ok)":x.ot>=.9?"var(--warn)":"var(--bad)"}">${pct(x.ot)}</td><td class="num">${pct(x.c)}</td></tr>`).join("")}</tbody></table></div></div></div>`;
+    chart("r1",{type:"bar",data:{labels:rows.map(x=>x.v.short),datasets:[{label:"Orders",data:rows.map(x=>x.n),backgroundColor:rows.map(x=>x.v.color),borderRadius:6,yAxisID:"y"},{type:"line",label:"Units",data:rows.map(x=>x.u),borderColor:cssv("--swirl-orange"),backgroundColor:cssv("--swirl-orange"),yAxisID:"y1",pointRadius:5,borderWidth:2}]},options:{scales:{y:{beginAtZero:true,title:{display:true,text:"Orders"}},y1:{position:"right",beginAtZero:true,grid:{display:false},title:{display:true,text:"Units"}},x:{grid:{display:false}}}}});
+    chart("r2",{type:"bar",data:{labels:rows.map(x=>x.v.short),datasets:[{label:"On time %",data:rows.map(x=>+(x.ot*100).toFixed(1)),backgroundColor:rows.map(x=>x.ot>=.95?cssv("--ok"):x.ot>=.9?cssv("--swirl-orange"):cssv("--swirl-red")),borderRadius:6},{type:"line",label:"Target",data:rows.map(()=>95),borderColor:cssv("--ink-3"),borderDash:[5,5],pointRadius:0,borderWidth:2}]},options:{scales:{y:{min:70,max:100},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  }
+  if(REP==="product"){
+    const ps={};LV.forEach(o=>o.lines.forEach(l=>{ps[l.sku]=ps[l.sku]||{q:0,v:0};ps[l.sku].q+=l.qty;ps[l.sku].v+=l.qty*l.price}));
+    const rows=products.map(p=>({p,...(ps[p.sku]||{q:0,v:0})})).sort((a,b)=>b.q-a.q);const totQ=rows.reduce((s,x)=>s+x.q,0);
+    const tot=rows.reduce((s,x)=>s+x.v,0);let cum=0;const top20=rows.slice(0,Math.ceil(rows.length*.2)).reduce((s,x)=>s+x.q,0);
+    B.innerHTML=`<div class="insight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg><p>The top 20% of products account for <b>${pct(top20/totQ)}</b> of units ordered. Keep these always in stock and first on the retailer ordering page.</p></div>
+    ${head("Top 12 products by units ordered","With cumulative share of all units")}<div class="card-b"><div class="chart-box"><canvas id="r1"></canvas></div></div></div>
+    ${head("Product sales","Selected period")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Vendor</th><th class="num">Units ordered</th><th class="num">Order value</th><th class="num">Share of units</th></tr></thead><tbody>${rows.map(x=>`<tr><td><div class="strong">${esc(x.p.name)}</div><div class="dim" style="font-size:12.5px">${x.p.sku}</div></td><td>${esc(V_BY[x.p.vendor].short)}</td><td class="num">${x.q.toLocaleString("en-IE")}</td><td class="num strong">${x.p.price?eur(x.v):"No charge"}</td><td class="num">${pct(x.q/totQ)}</td></tr>`).join("")}</tbody></table></div></div></div>`;
+    const t12=rows.slice(0,12);
+    chart("r1",{data:{labels:t12.map(x=>x.p.name.length>22?x.p.name.slice(0,21)+"…":x.p.name),datasets:[{type:"bar",label:"Units ordered",data:t12.map(x=>x.q),backgroundColor:t12.map(x=>V_BY[x.p.vendor].color),borderRadius:6,yAxisID:"y"},{type:"line",label:"Cumulative share %",data:t12.map(x=>+((cum+=x.q)/totQ*100).toFixed(1)),borderColor:cssv("--swirl-orange"),pointRadius:3,yAxisID:"y1",tension:.3}]},options:{scales:{y:{beginAtZero:true},y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{callback:v=>v+"%"}},x:{grid:{display:false},ticks:{font:{size:10},maxRotation:45,minRotation:45}}}}});
+  }
+  if(REP==="fulfilment"){
+    const del=L.filter(o=>o.status==="Delivered");const lead=del.map(o=>(o.delivered-o.date)/DAY);
+    const avg=lead.reduce((a,b)=>a+b,0)/lead.length;
+    const buckets=["1 day","2 days","3 days","4 days","5+ days"];const bc=[0,0,0,0,0];lead.forEach(d=>bc[Math.min(4,Math.max(0,Math.ceil(d)-1))]++);
+    B.innerHTML=`<div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))"><div class="card kpi hero-kpi"><div class="lbl">On-time delivery</div><div class="val">${pct(onTime(L))}</div></div><div class="card kpi"><div class="lbl">Average order-to-delivery</div><div class="val">${avg.toFixed(1)} days</div></div><div class="card kpi"><div class="lbl">Cancelled orders</div><div class="val">${pct(L.filter(o=>o.status==="Cancelled").length/L.length)}</div></div><div class="card kpi"><div class="lbl">Open right now</div><div class="val">${orders.filter(o=>["Pending","Approved","Dispatched"].includes(o.status)).length}</div></div></div>
+    <div class="grid cols-1-1">${head("On-time delivery trend","Share of delivered orders arriving by the promised date")}<div class="card-b"><div class="chart-box"><canvas id="r1"></canvas></div></div></div>${head("Order-to-delivery time","Number of delivered orders")}<div class="card-b"><div class="chart-box"><canvas id="r2"></canvas></div></div></div></div>`;
+    const otm=months.map(m=>{const d=L.filter(o=>mkey(o.date)===mkey(m)&&o.status==="Delivered");return d.length?onTime(d)*100:null});
+    chart("r1",{type:"line",data:{labels:months.map(mlabel),datasets:[{label:"On time %",data:otm,borderColor:cssv("--maxol-blue"),backgroundColor:"rgba(5,99,160,.12)",fill:true,tension:.35,borderWidth:3},{label:"Target 95%",data:months.map(()=>95),borderColor:cssv("--swirl-red"),borderDash:[5,5],pointRadius:0,borderWidth:2}]},options:{scales:{y:{min:70,max:100,ticks:{callback:v=>v+"%"}},x:{grid:{display:false}}}}});
+    chart("r2",{type:"bar",data:{labels:buckets,datasets:[{data:bc,backgroundColor:[cssv("--ok"),cssv("--maxol-blue"),"#3888BD",cssv("--swirl-orange"),cssv("--swirl-red")],borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}}}}});
+  }
+  if(REP==="roi")drawROI(B,head);
+}
+const ROI={orders:0,minsNow:14,minsNew:4,rate:32,errNow:4.5,errNew:1,errCost:85,invest:45000,hosting:450};
+function drawROI(B,head){
+  if(!ROI.orders)ROI.orders=400; // network-wide estimate
+  const S=[["orders","Orders processed per month",50,1500,10,v=>v],["minsNow","Admin minutes per order today",2,30,1,v=>v+" min"],["minsNew","Admin minutes per order in new system",1,15,1,v=>v+" min"],["rate","Admin cost per hour",15,60,1,v=>"€"+v],["errNow","Orders needing correction today",0,10,.5,v=>v+"%"],["errNew","Orders needing correction in new system",0,5,.5,v=>v+"%"],["errCost","Cost to fix one order",20,200,5,v=>"€"+v],["invest","Redesign and migration investment",10000,150000,1000,v=>eur(v)],["hosting","Monthly running cost",0,2000,50,v=>eur(v)]];
+  B.innerHTML=`<div class="card" style="background:linear-gradient(135deg,var(--maxol-blue),var(--maxol-blue-2));color:#fff;border:0"><div class="card-b" style="padding:22px"><h3 style="font-size:22px;font-weight:900">What the new system pays back</h3><p style="margin:6px 0 0;max-width:70ch;color:#e2f0fa">Adjust the assumptions to match Maxol’s own figures. Savings come from faster order handling, fewer corrections and self-serve reporting that replaces manual spreadsheets.</p></div></div>
+  <div class="roi-big" id="roiOut"></div>
+  <div class="grid cols-1-1">
+   ${head("Assumptions","Drag to change – results update instantly")}<div class="card-b"><div class="roi-inputs">${S.map(s=>`<div class="range-f"><label for="roi_${s[0]}"><span>${s[1]}</span><output id="o_${s[0]}"></output></label><input type="range" id="roi_${s[0]}" min="${s[2]}" max="${s[3]}" step="${s[4]}" value="${ROI[s[0]]}"></div>`).join("")}</div></div></div>
+   ${head("Cumulative savings vs. investment","36 months after go-live")}<div class="card-b"><div class="chart-box" style="height:340px"><canvas id="r1"></canvas></div></div></div>
+  </div>
+  <div class="grid cols-1-1">${head("Where the annual saving comes from","Year one, after running costs")}<div class="card-b"><div class="chart-box sm"><canvas id="r2"></canvas></div></div></div>
+  ${head("Current system vs. redesigned system","What changes for the admin team")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Area</th><th>Current system</th><th>Redesigned system</th></tr></thead><tbody>
+   <tr><td class="strong">Order approval</td><td>One order at a time, page by page</td><td>Status tabs, filters and one-click approval</td></tr>
+   <tr><td class="strong">Reporting</td><td>Exports compiled in spreadsheets</td><td>Live charts with PDF and Excel export</td></tr>
+   <tr><td class="strong">Retailer view</td><td>Separate lists per record</td><td>One profile: spend, orders, contacts</td></tr>
+   <tr><td class="strong">Vendor performance</td><td>Not tracked</td><td>On-time and cancellation scorecards for all four vendors</td></tr>
+   <tr><td class="strong">No-charge items</td><td>Mixed in with charged orders</td><td>Maxol Group vouchers and POS tracked by units, kept out of spend totals</td></tr>
+   <tr><td class="strong">Devices</td><td>Desktop only</td><td>Works on desktop, tablet and phone</td></tr>
+  </tbody></table></div></div></div></div>
+  <p class="dim" style="font-size:13px;margin:0">Illustrative model using sample data. Replace the assumptions with Maxol’s figures during discovery to produce the final business case.</p>`;
+  S.forEach(s=>{const el=$("#roi_"+s[0]);const upd=()=>{ROI[s[0]]=+el.value;$("#o_"+s[0]).textContent=s[5](+el.value)};upd();el.oninput=()=>{upd();calc()}});
+  calc();
+  function calc(){
+    const hrs=ROI.orders*(ROI.minsNow-ROI.minsNew)/60;const time=hrs*ROI.rate;const err=ROI.orders*((ROI.errNow-ROI.errNew)/100)*ROI.errCost;const rep=6*ROI.rate*4.3; // ~6 hrs/week reporting saved
+    const monthly=time+err+rep-ROI.hosting;const annual=monthly*12;const payback=monthly>0?ROI.invest/monthly:Infinity;const roi3=(monthly*36-ROI.invest)/ROI.invest;
+    $("#roiOut").innerHTML=`<div class="accent"><small>Annual net saving</small><b>${eur(annual)}</b></div><div><small>Payback period</small><b>${isFinite(payback)?payback.toFixed(1)+" months":"No payback"}</b></div><div><small>3-year ROI</small><b style="color:${roi3>=0?"var(--ok)":"var(--bad)"}">${(roi3*100).toFixed(0)}%</b></div><div><small>Admin hours freed per month</small><b>${Math.round(hrs+26)}</b></div>`;
+    const m36=[...Array(37).keys()];
+    const cfg={type:"line",data:{labels:m36.map(m=>m%6===0?"M"+m:""),datasets:[{label:"Cumulative net saving",data:m36.map(m=>monthly*m),borderColor:cssv("--maxol-blue"),backgroundColor:"rgba(5,99,160,.14)",fill:true,tension:.2,pointRadius:0,borderWidth:3},{label:"Investment",data:m36.map(()=>ROI.invest),borderColor:cssv("--swirl-red"),borderDash:[6,5],pointRadius:0,borderWidth:2}]},options:{animation:false,interaction:{mode:"index",intersect:false},plugins:{tooltip:{callbacks:{title:c=>"Month "+c[0].dataIndex,label:c=>c.dataset.label+": "+eur(c.raw)}}},scales:{y:euroAxis,x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:0}}}}};
+    if(charts.r1){charts.r1.data=cfg.data;charts.r1.update()}else chart("r1",cfg);
+    const parts=[time*12,err*12,rep*12,-ROI.hosting*12];
+    const c2={type:"bar",data:{labels:["Faster order handling","Fewer corrections","Automated reporting","Running cost"],datasets:[{data:parts,backgroundColor:[cssv("--maxol-blue"),cssv("--swirl-orange"),cssv("--swirl-magenta"),cssv("--swirl-red")],borderRadius:6}]},options:{animation:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>eur(c.raw)}}},scales:{x:euroAxis,y:{grid:{display:false}}}}};
+    if(charts.r2){charts.r2.data=c2.data;charts.r2.update()}else chart("r2",c2);
+  }
+}
+
+/* ================= PORTALS (Admin · Retailer · Vendor) ================= */
+const NOW=()=>new Date(TODAY.getTime()+Math.round(performance.now()));
+const units=o=>o.lines.reduce((a,x)=>a+x.qty,0);
+const OPEN=["Pending","Approved","Dispatched"];
+const sv='viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const IC={
+ dash:`<svg ${sv}><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>`,
+ home:`<svg ${sv}><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg>`,
+ bag:`<svg ${sv}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>`,
+ store:`<svg ${sv}><path d="M3 9l1-5h16l1 5M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v8h14v-8M10 21v-5h4v5"/></svg>`,
+ truck:`<svg ${sv}><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+ box:`<svg ${sv}><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>`,
+ chart:`<svg ${sv}><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>`,
+ cart:`<svg ${sv}><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></svg>`,
+ doc:`<svg ${sv}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>`,
+ user:`<svg ${sv}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`,
+ users:`<svg ${sv}><circle cx="9" cy="8" r="4"/><path d="M1 21a8 8 0 0 1 16 0M17 4a4 4 0 0 1 0 8M23 21a8 8 0 0 0-5-7.4"/></svg>`,
+ bulb:`<svg ${sv}><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>`,
+ ticket:`<svg ${sv}><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/><path d="M14 5v14" stroke-dasharray="2 3"/></svg>`,
+ shirt:`<svg ${sv}><path d="M8 3 3 6l2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"/></svg>`,
+ sign:`<svg ${sv}><path d="M4 3h16v11H4zM8 14l-3 7M16 14l3 7M8 8h8"/></svg>`,
+ pen:`<svg ${sv}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`};
+const V_ICON={V201:"ticket",V202:"shirt",V203:"sign",V204:"pen"};
+products.filter(p=>p.vendor==="V201").slice(0,3).forEach(p=>p.limit=10);
+
+const NAVS={
+ admin:[["dashboard","Dashboard","dash"],"Trading",["orders","Orders","bag","pending"],["retailers","Customers / Retailers","store"],["vendors","Vendors","truck"],["products","Products","box"],"Insight",["reports","Reports & ROI","chart"],"Settings",["users","Users & access","users"]],
+ retailer:[["r-home","Home","home"],"Ordering",["r-shop","Shop","cart"],["r-orders","My orders","bag","ropen"],["r-invoices","Invoices & statements","doc"],"My store",["r-account","Store account","user"]],
+ vendor:[["v-home","Home","home"],"Fulfilment",["v-orders","Orders to fulfil","bag","vready"],["v-products","My products","box"],"Insight",["v-performance","Performance","chart"]]};
+const DEFAULT={admin:"dashboard",retailer:"r-home",vendor:"v-home"};
+let ROLE={role:"admin",rid:retailers[0].id,vid:"V202"};
+try{const s=JSON.parse(sessionStorage.getItem("mx-role")||"null");if(s&&s.role)ROLE=s}catch(e){}
+let CUR="dashboard", CART={};
+function routesFor(role){return role==="admin"?{dashboard:renderDashboard,orders:renderOrders,retailers:renderRetailers,vendors:renderVendors,products:renderProducts,reports:renderReports,users:renderUsers}:role==="retailer"?{"r-home":renderRHome,"r-shop":renderShop,"r-orders":renderROrders,"r-invoices":renderRInvoices,"r-account":renderRAccount}:{"v-home":renderVHome,"v-orders":renderVOrders,"v-products":renderVProducts,"v-performance":renderVPerformance}}
+function buildNav(){
+  $("#navList").innerHTML=NAVS[ROLE.role].map(x=>typeof x==="string"?`<div class="group">${x}</div>`:`<a class="nav-a" href="#${x[0]}" data-route="${x[0]}">${IC[x[2]]}${x[1]}${x[3]?`<span class="count" data-count="${x[3]}">0</span>`:""}</a>`).join("");
+  const me=ROLE.role==="retailer"?R_BY[ROLE.rid]:ROLE.role==="vendor"?V_BY[ROLE.vid]:null;
+  $("#userBox").innerHTML=!me?`<div class="avatar">DA</div><span>Administrator</span>`:`<div class="avatar" style="background:${me.color};color:#fff">${initials(me.short||me.name)}</div><span>${esc(me.short||me.name)}</span>`;
+  $("#portalFoot").innerHTML={admin:"Maxol Retail Administration",retailer:"Maxol Retailer Portal",vendor:"Maxol Vendor Portal"}[ROLE.role]+"<br>Redesign proof of concept · v0.3";
+  $("#cartBtn").hidden=ROLE.role!=="retailer";
+  $("#portalSel").value=ROLE.role;
+  $("#gsearch").placeholder={admin:"Search orders, retailers, vendors…",retailer:"Search your orders or products…",vendor:"Search your orders or products…"}[ROLE.role];
+}
+function setRole(role,id){closeDrawer();closeModal();ROLE.role=role;if(role==="retailer"&&id)ROLE.rid=id;if(role==="vendor"&&id)ROLE.vid=id;try{sessionStorage.setItem("mx-role",JSON.stringify(ROLE))}catch(e){}buildNav();if(location.hash==="#"+DEFAULT[role])route();else location.hash=DEFAULT[role]}
+function destroyCharts(all){Object.keys(charts).filter(k=>all||!k.startsWith("d_")).forEach(k=>{charts[k].destroy();delete charts[k]})}
+function route(){const RT=routesFor(ROLE.role);let r=(location.hash||"").slice(1);if(!RT[r])r=DEFAULT[ROLE.role];CUR=r;
+  document.querySelectorAll(".nav-a").forEach(a=>{if(a.dataset.route===r)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  destroyCharts(true);RT[r]();$("#view").scrollTop=0;$("#side").classList.remove("open");if(!$("#drawer").classList.contains("open"))$("#scrim").classList.remove("open");updateCounts()}
+function refreshView(){destroyCharts(false);routesFor(ROLE.role)[CUR]();updateCounts()}
+window.addEventListener("hashchange",route);
+function cartCount(){return Object.values(CART).reduce((a,b)=>a+b,0)}
+function updateCounts(){const c={pending:orders.filter(o=>o.status==="Pending").length,ropen:orders.filter(o=>o.retailer===ROLE.rid&&OPEN.includes(o.status)).length,vready:orders.filter(o=>o.vendor===ROLE.vid&&o.status==="Approved").length};
+  document.querySelectorAll("[data-count]").forEach(e=>{const n=c[e.dataset.count];e.textContent=n;e.hidden=!n});
+  const cc=cartCount();$("#cartCount").textContent=cc;$("#cartCount").hidden=!cc}
+const headC=(t,s,extra="")=>`<div class="card-h"><div><h3>${t}</h3>${s?`<div class="sub">${s}</div>`:""}</div>${extra}</div>`;
+const insight=html=>`<div class="insight">${IC.bulb}<p>${html}</p></div>`;
+function weekly(list,W=12){const ws=new Date(TODAY.getTime()-W*7*DAY);const n=Array(W).fill(0),u=Array(W).fill(0);list.forEach(o=>{const i=Math.floor((o.date-ws)/(7*DAY));if(i>=0&&i<W){n[i]++;u[i]+=units(o)}});return{labels:n.map((_,i)=>new Date(ws.getTime()+i*7*DAY).toLocaleDateString("en-IE",{day:"numeric",month:"short"})),n,u}}
+
+/* ---------- Retailer portal ---------- */
+const myOrders=()=>orders.filter(o=>o.retailer===ROLE.rid);
+function renderRHome(){
+  const me=R_BY[ROLE.rid],l=myOrders(),lv=l.filter(live);
+  const yr=lv.filter(o=>o.date.getFullYear()===TODAY.getFullYear());const spend=yr.reduce((s,o)=>s+o.total,0);
+  const open=l.filter(o=>OPEN.includes(o.status));const next=open.filter(o=>o.status!=="Pending").sort((a,b)=>a.promised-b.promised)[0];
+  const free=yr.filter(o=>V_BY[o.vendor].free).reduce((s,o)=>s+units(o),0);
+  const seen=[];l.forEach(o=>o.lines.forEach(x=>{if(!seen.includes(x.sku))seen.push(x.sku)}));
+  const quick=seen.slice(0,5).map(s=>products.find(p=>p.sku===s));
+  $("#view").innerHTML=`<div class="welcome"><div><div class="crumbs">${me.code} · ${me.type} · ${me.county}</div><h1>Welcome back, ${esc(me.contact.split(" ")[0])}</h1><div class="script">${esc(me.name)} – at the heart of it.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-ghost" href="#r-orders">Track my orders</a><a class="btn btn-primary" href="#r-shop">Start an order</a></div></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+   <div class="card kpi hero-kpi"><div class="lbl">Spend this year</div><div class="val">${eur(spend)}</div><div class="delta up">${yr.length} orders placed in ${TODAY.getFullYear()}</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--swirl-orange)"></span><div class="lbl">Open orders</div><div class="val">${open.length}</div><div class="delta dim">${open.filter(o=>o.status==="Pending").length} awaiting Maxol approval</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--swirl-red)"></span><div class="lbl">Next delivery</div><div class="val" style="font-size:22px">${next?fdate(next.promised):"None due"}</div><div class="delta dim">${next?esc(V_BY[next.vendor].short)+" · "+next.no:"Nothing on the way"}</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--swirl-purple)"></span><div class="lbl">No-charge items this year</div><div class="val">${free.toLocaleString("en-IE")}</div><div class="delta dim">Vouchers and POS from The Maxol Group</div></div>
+  </div>
+  <div class="grid cols-2-1" style="margin-top:18px">
+   <div class="card">${headC("My spend by month","Charged orders, last 12 months")}<div class="card-b"><div class="chart-box"><canvas id="c1"></canvas></div></div></div>
+   <div class="card">${headC("Orders by vendor","Last 12 months")}<div class="card-b"><div class="chart-box"><canvas id="c2"></canvas></div></div></div>
+  </div>
+  <div class="grid cols-2-1" style="margin-top:18px">
+   <div class="card">${headC("Recent orders","Click an order to see items and tracking",`<a class="btn btn-ghost btn-sm" href="#r-orders">All my orders</a>`)}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap">${orderTable(l.slice(0,6),{hideRetailer:true})}</div></div></div>
+   <div class="grid" style="align-content:start">
+    <div class="card">${headC("From Maxol","News for retailers")}<div class="card-b"><div class="alert-list">
+     <a class="alert" href="#r-shop" onclick="SH.v='V201'" style="text-decoration:none;color:inherit"><span class="dot" style="background:var(--maxol-yellow)"></span><div><b>Winter campaign POS is ready to order</b><span>Order by 20 November for delivery before launch</span></div></a>
+     <a class="alert" href="#r-shop" onclick="SH.v='V202'" style="text-decoration:none;color:inherit"><span class="dot" style="background:var(--swirl-red)"></span><div><b>New soft-shell jackets from KM Corporate Wear</b><span>Branded, in all sizes</span></div></a>
+     <div class="alert"><span class="dot" style="background:var(--maxol-blue)"></span><div><b>Fuel voucher books: up to 10 per order</b><span>Contact your area manager for larger quantities</span></div></div>
+    </div></div></div>
+    <div class="card">${headC("Order again","Items you ordered recently")}<div class="card-b"><div class="alert-list">${quick.map(p=>`<div class="alert" style="align-items:center"><span class="mono-av" style="background:${V_BY[p.vendor].color}">${IC[V_ICON[p.vendor]]}</span><div style="flex:1;min-width:0"><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b><span>${p.price?eur2(p.price):"No charge"}</span></div><button class="btn btn-ghost btn-sm" onclick="addToCart('${p.sku}',1)">Add</button></div>`).join("")||`<p class="dim" style="margin:0">Your first order will appear here.</p>`}</div></div></div>
+   </div>
+  </div>`;
+  bindOrderRows();chartDefaults();
+  chart("c1",{data:{labels:MONTHS.map(mlabel),datasets:[{type:"bar",label:"Spend",data:monthly(lv),backgroundColor:cssv("--maxol-blue"),borderRadius:6,yAxisID:"y"},{type:"line",label:"Orders",data:monthly(lv,()=>1),borderColor:cssv("--swirl-orange"),backgroundColor:cssv("--swirl-orange"),tension:.35,yAxisID:"y1",borderWidth:3}]},options:{scales:{y:euroAxis,y1:{position:"right",beginAtZero:true,grid:{display:false},ticks:{precision:0}},x:{grid:{display:false}}}}});
+  chart("c2",{type:"doughnut",data:{labels:vendors.map(v=>v.short),datasets:[{data:vendors.map(v=>lv.filter(o=>o.vendor===v.id&&o.date>=new Date(TODAY-365*DAY)).length),backgroundColor:vendors.map(v=>v.color),borderWidth:0}]},options:{cutout:"62%",plugins:{legend:{position:"bottom"}}}});
+}
+const SH={v:"",q:""};
+function renderShop(){
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Ordering</div><h1>Shop</h1><p>Order uniforms, point-of-sale, printing, stationery and Maxol promotional materials.</p></div><button class="btn btn-primary" onclick="openCart()">${IC.cart.replace("<svg","<svg width='16' height='16'")} View basket <span id="shopCartN"></span></button></div>
+  <div class="card" style="margin-bottom:18px"><div class="toolbar" style="border:0"><div class="tabs" id="shTabs" role="tablist"></div><input class="input grow" id="shq" placeholder="Search products" value="${esc(SH.q)}" aria-label="Search products"></div></div>
+  <div class="grid prod-grid" id="shGrid"></div>`;
+  $("#shq").oninput=e=>{SH.q=e.target.value;drawShop()};drawShop();
+}
+function drawShop(){
+  if(!$("#shGrid"))return;
+  $("#shTabs").innerHTML=[["","All vendors"],...vendors.map(v=>[v.id,v.short])].map(t=>`<button role="tab" aria-selected="${SH.v===t[0]}" data-v="${t[0]}">${esc(t[1])}</button>`).join("");
+  $("#shTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{SH.v=b.dataset.v;drawShop()});
+  const q=SH.q.toLowerCase();const l=products.filter(p=>(!SH.v||p.vendor===SH.v)&&(!q||p.name.toLowerCase().includes(q)));
+  $("#shGrid").innerHTML=l.length?l.map(p=>{const v=V_BY[p.vendor];const inC=CART[p.sku]||0;return `<div class="pcard"><div class="pimg" style="background:linear-gradient(135deg,${v.color},${v.color}99)">${IC[V_ICON[v.id]]}${p.price?"":`<em>No charge</em>`}</div><div class="pbody"><div class="dim" style="font-size:12.5px">${esc(v.short)} · ${p.sku}</div><h3>${esc(p.name)}</h3><div class="pprice">${p.price?eur2(p.price)+' <small class="dim" style="font-weight:600;font-size:12px">ex. VAT</small>':"Free to Maxol sites"}</div><div class="dim" style="font-size:12.5px">${p.stock>0?(p.stock<25?`Only ${p.stock} left`:"In stock"):"Out of stock"} · Delivery in ${v.leadDays+1} days${p.limit?` · Max ${p.limit} per order`:""}</div>
+   <div class="pact"><div class="stepper"><button aria-label="Decrease quantity" onclick="stepQ('${p.sku}',-1)">−</button><input id="q_${p.sku}" value="1" inputmode="numeric" aria-label="Quantity"><button aria-label="Increase quantity" onclick="stepQ('${p.sku}',1)">+</button></div><button class="btn btn-primary btn-sm" style="flex:1" onclick="addToCart('${p.sku}',+$('#q_${p.sku}').value||1)">${inC?`Add more (${inC})`:"Add to basket"}</button></div></div></div>`}).join(""):`<div class="card empty" style="grid-column:1/-1"><b>No products match “${esc(SH.q)}”.</b><br>Try another word or choose All vendors.</div>`;
+  $("#shopCartN").textContent=cartCount()?`(${cartCount()})`:"";
+}
+function stepQ(sku,d){const i=$("#q_"+sku);i.value=Math.max(1,(+i.value||1)+d)}
+function addToCart(sku,q,silent){const p=products.find(x=>x.sku===sku);q=Math.max(1,Math.round(q));let n=(CART[sku]||0)+q;let msg=`${p.name} added to basket`;if(p.limit&&n>p.limit){n=p.limit;msg=`${p.name} is limited to ${p.limit} per order`}CART[sku]=n;updateCounts();if(!silent)toast(msg);if(CUR==="r-shop")drawShop()}
+function cartGroups(){const items=Object.entries(CART).map(([sku,q])=>({p:products.find(x=>x.sku===sku),q}));return vendors.map(v=>({v,items:items.filter(i=>i.p.vendor===v.id)})).filter(g=>g.items.length)}
+function openCart(){
+  const groups=cartGroups();
+  if(!groups.length){openDrawer(`<div class="drawer-h"><div><h2 id="drawerTitle">Your basket</h2></div>${closeBtn}</div><div class="drawer-b"><div class="empty"><b>Your basket is empty.</b><br>Browse the shop to add uniforms, POS or stationery.</div></div><div class="drawer-f"><a class="btn btn-primary" href="#r-shop" onclick="closeDrawer()">Go to shop</a></div>`);return}
+  const sub=groups.reduce((s,g)=>s+g.items.reduce((a,i)=>a+i.p.price*i.q,0),0);
+  openDrawer(`<div class="drawer-h"><div><div class="crumbs">${esc(R_BY[ROLE.rid].name)}</div><h2 id="drawerTitle">Your basket</h2><div class="dim" style="font-size:13px">${groups.length>1?`${groups.length} vendors – one order is created for each`:"One order will be created"}</div></div>${closeBtn}</div>
+  <div class="drawer-b">${groups.map(g=>`<div class="section-t" style="display:flex;justify-content:space-between;gap:10px"><span>${esc(g.v.name)}</span><span class="dim" style="font-size:13px;font-weight:600">Delivery in ${g.v.leadDays+1} days</span></div><div class="tbl-wrap card" style="box-shadow:none"><table><tbody>${g.items.map(i=>`<tr><td style="white-space:normal"><div class="strong">${esc(i.p.name)}</div><div class="dim" style="font-size:12.5px">${i.p.price?eur2(i.p.price)+" each":"No charge"}</div></td><td><div class="stepper"><button aria-label="Decrease" onclick="cartQ('${i.p.sku}',-1)">−</button><span>${i.q}</span><button aria-label="Increase" onclick="cartQ('${i.p.sku}',1)">+</button></div></td><td class="num strong">${i.p.price?eur2(i.p.price*i.q):"–"}</td></tr>`).join("")}</tbody></table></div>`).join("")}
+   <div class="field" style="margin-top:18px"><label for="cpo">Your purchase order reference (optional)</label><input class="input" id="cpo" placeholder="e.g. store PO number"></div>
+   <div class="field"><label for="cnote">Delivery notes (optional)</label><input class="input" id="cnote" placeholder="e.g. deliver to rear door before 10am"></div>
+   <div class="card" style="box-shadow:none;padding:14px 16px;display:grid;gap:4px"><div style="display:flex;justify-content:space-between"><span class="dim">Subtotal</span><span>${eur2(sub)}</span></div><div style="display:flex;justify-content:space-between"><span class="dim">VAT (23%)</span><span>${eur2(sub*.23)}</span></div><div style="display:flex;justify-content:space-between;font-weight:800;font-size:17px;margin-top:4px"><span>Total</span><span>${eur2(sub*1.23)}</span></div></div>
+   <p class="dim" style="font-size:13px">Orders go to Maxol for approval, then to the vendor for dispatch. You’ll be emailed at each step.</p></div>
+  <div class="drawer-f"><button class="btn btn-ghost" onclick="CART={};updateCounts();closeDrawer();drawShop()">Empty basket</button><button class="btn btn-primary" onclick="placeOrders()">Place ${groups.length>1?groups.length+" orders":"order"}</button></div>`);
+}
+function cartQ(sku,d){const p=products.find(x=>x.sku===sku);let n=(CART[sku]||0)+d;if(p.limit&&n>p.limit){n=p.limit;toast(`Limited to ${p.limit} per order`)}if(n<=0)delete CART[sku];else CART[sku]=n;updateCounts();openCart();drawShop()}
+function placeOrders(){const po=$("#cpo").value.trim(),note=$("#cnote").value.trim();const nos=[];
+  cartGroups().forEach(g=>{const no="ORD-"+(24310+orders.length);const lines=g.items.map(i=>({sku:i.p.sku,name:i.p.name,qty:i.q,price:i.p.price}));orders.unshift({no,date:NOW(),retailer:ROLE.rid,vendor:g.v.id,lines,total:lines.reduce((s,l)=>s+l.qty*l.price,0),status:"Pending",promised:new Date(TODAY.getTime()+(g.v.leadDays+1)*DAY),delivered:null,po:po||"PO"+ri(100000,999999),note});nos.push(no)});
+  CART={};closeDrawer();toast(`${nos.join(", ")} placed – awaiting Maxol approval`);ROS.tab="All";if(CUR==="r-orders")refreshView();else location.hash="r-orders"}
+function reorder(no){const o=orders.find(x=>x.no===no);o.lines.forEach(l=>addToCart(l.sku,l.qty,true));toast("Items added to your basket");openCart()}
+const ROS={tab:"All",q:""};
+function renderROrders(){
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Ordering</div><h1>My orders</h1><p>Every order from ${esc(R_BY[ROLE.rid].name)}, with live status from Maxol and the vendor.</p></div><a class="btn btn-primary" href="#r-shop">Start an order</a></div>
+  <div class="card"><div class="toolbar"><div class="tabs" id="rotabs" role="tablist"></div></div><div class="toolbar"><input class="input grow" id="roq" placeholder="Search by order no., PO, vendor or product" value="${esc(ROS.q)}"></div><div class="tbl-wrap" id="rotable"></div></div>`;
+  $("#roq").oninput=e=>{ROS.q=e.target.value;drawROrders()};drawROrders();
+}
+function drawROrders(){const q=ROS.q.toLowerCase();const base=myOrders().filter(o=>!q||(o.no+o.po+V_BY[o.vendor].name+o.lines.map(l=>l.name).join(" ")).toLowerCase().includes(q));
+  $("#rotabs").innerHTML=[["All","All"],["Open","In progress"],["Delivered","Delivered"],["Cancelled","Cancelled"]].map(t=>`<button role="tab" aria-selected="${ROS.tab===t[0]}" data-t="${t[0]}">${t[1]}<span class="n">${t[0]==="All"?base.length:t[0]==="Open"?base.filter(o=>OPEN.includes(o.status)).length:base.filter(o=>o.status===t[0]).length}</span></button>`).join("");
+  $("#rotabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ROS.tab=b.dataset.t;drawROrders()});
+  const list=ROS.tab==="All"?base:ROS.tab==="Open"?base.filter(o=>OPEN.includes(o.status)):base.filter(o=>o.status===ROS.tab);
+  $("#rotable").innerHTML=orderTable(list,{hideRetailer:true,expected:true});bindOrderRows()}
+function invoicesFor(rid){return orders.filter(o=>o.retailer===rid&&o.status==="Delivered"&&!V_BY[o.vendor].free).map(o=>{const due=new Date(o.delivered.getTime()+parseInt(V_BY[o.vendor].terms)*DAY);return{no:"INV-"+o.no.slice(4),o,date:o.delivered,due,amount:o.total*1.23,paid:due<TODAY}})}
+function renderRInvoices(){
+  const inv=invoicesFor(ROLE.rid);const dueL=inv.filter(i=>!i.paid);const bal=dueL.reduce((s,i)=>s+i.amount,0);
+  const nextDue=dueL.sort((a,b)=>a.due-b.due)[0];const paidY=inv.filter(i=>i.paid&&i.date.getFullYear()===TODAY.getFullYear()).reduce((s,i)=>s+i.amount,0);
+  const st=MONTHS.slice(0,11).reverse().map(m=>{const l=inv.filter(i=>mkey(i.date)===mkey(m));return{m,n:l.length,amt:l.reduce((s,i)=>s+i.amount,0)}}).filter(x=>x.n);
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Ordering</div><h1>Invoices &amp; statements</h1><p>Invoices are raised when a charged order is delivered. Maxol Group items are never invoiced.</p></div></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px">
+   <div class="card kpi hero-kpi"><div class="lbl">Balance due</div><div class="val">${eur2(bal)}</div><div class="delta up">${dueL.length} open invoice${dueL.length===1?"":"s"}</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--swirl-orange)"></span><div class="lbl">Next payment due</div><div class="val" style="font-size:22px">${nextDue?fdate(nextDue.due):"Nothing due"}</div><div class="delta dim">${nextDue?eur2(nextDue.amount)+" · "+esc(V_BY[nextDue.o.vendor].short):""}</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--ok)"></span><div class="lbl">Paid this year</div><div class="val">${eur(paidY)}</div></div>
+  </div>
+  <div class="grid cols-2-1">
+   <div class="card">${headC("Invoices","Latest first, amounts include VAT")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Invoice</th><th>Vendor</th><th>Invoice date</th><th>Due date</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody>${inv.slice(0,20).map(i=>`<tr><td class="strong"><a href="#" onclick="event.preventDefault();openOrder('${i.o.no}')">${i.no}</a></td><td>${esc(V_BY[i.o.vendor].short)}</td><td>${fdate(i.date)}</td><td>${fdate(i.due)}</td><td class="num strong">${eur2(i.amount)}</td><td>${i.paid?badge("Paid"):badge("Due")}</td><td><button class="btn btn-ghost btn-sm" onclick="toast('${i.no}.pdf downloads in the live system')">PDF</button></td></tr>`).join("")||`<tr><td colspan="7" class="dim">No invoices yet.</td></tr>`}</tbody></table></div></div></div>
+   <div class="card">${headC("Monthly statements","One statement per month")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><tbody>${st.map(x=>`<tr><td class="strong">${x.m.toLocaleDateString("en-IE",{month:"long",year:"numeric"})}<div class="dim" style="font-size:12.5px;font-weight:400">${x.n} invoice${x.n>1?"s":""}</div></td><td class="num">${eur2(x.amt)}</td><td><button class="btn btn-ghost btn-sm" onclick="toast('Statement downloads in the live system')">PDF</button></td></tr>`).join("")||`<tr><td class="dim">No statements yet.</td></tr>`}</tbody></table></div></div></div>
+  </div>`;
+}
+function renderRAccount(){
+  const me=R_BY[ROLE.rid];
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">My store</div><h1>Store account</h1><p>Your store details, who can order and how Maxol keeps you updated.</p></div><button class="btn btn-primary" onclick="toast('Changes saved')">Save changes</button></div>
+  <div class="grid cols-1-1">
+   <div class="card">${headC("Store details","Changes to the account name or code go through Maxol")}<div class="card-b"><div class="form-grid">
+    <div class="field"><label>Store name</label><input class="input" value="${esc(me.name)}" disabled></div><div class="field"><label>Account code</label><input class="input" value="${me.code}" disabled></div>
+    <div class="field"><label for="a1">Delivery address</label><input class="input" id="a1" value="${esc(me.name)}, Main Street, ${me.county}"></div><div class="field"><label for="a2">Phone</label><input class="input" id="a2" value="${me.phone}"></div>
+    <div class="field" style="grid-column:1/-1"><label for="a3">Approved ordering email</label><input class="input" id="a3" value="${me.email}"></div>
+    <div class="field"><label>Site type</label><input class="input" value="${me.type}" disabled></div><div class="field"><label>Retailer since</label><input class="input" value="${me.since}" disabled></div>
+   </div></div></div>
+   <div class="grid" style="align-content:start">
+    <div class="card">${headC("People who can order","Store managers can approve staff orders",`<button class="btn btn-ghost btn-sm" onclick="toast('Invitation sent')">+ Invite</button>`)}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><tbody><tr><td class="strong">${esc(me.contact)}<div class="dim" style="font-size:12.5px;font-weight:400">${me.email}</div></td><td>Store manager</td><td>${badge("Active")}</td></tr><tr><td class="strong">${esc(FIRST[(me.since+3)%FIRST.length]+" "+LAST[(me.since+5)%LAST.length])}<div class="dim" style="font-size:12.5px;font-weight:400">deputy.${me.email}</div></td><td>Staff – can order</td><td>${badge("Active")}</td></tr></tbody></table></div></div></div>
+    <div class="card">${headC("Email me when","Sent to the approved ordering email")}<div class="card-b" style="display:grid;gap:10px">${["Maxol approves or rejects an order","A vendor dispatches an order","An invoice is raised","New campaign materials are available"].map((t,i)=>`<label style="display:flex;gap:10px;align-items:center"><input type="checkbox" ${i<3?"checked":""} style="width:18px;height:18px;accent-color:var(--maxol-blue)">${t}</label>`).join("")}</div></div>
+   </div>
+  </div>`;
+}
+
+/* ---------- Vendor portal ---------- */
+const vOrders=()=>orders.filter(o=>o.vendor===ROLE.vid);
+function renderVHome(){
+  const me=V_BY[ROLE.vid],l=vOrders();
+  const pend=l.filter(o=>o.status==="Pending"),ready=l.filter(o=>o.status==="Approved"),out=l.filter(o=>o.status==="Dispatched");
+  const late=out.filter(o=>o.promised<TODAY), low=products.filter(p=>p.vendor===me.id&&p.stock<25);
+  const ot=onTime(l.filter(o=>o.date>=new Date(TODAY-90*DAY)));
+  const w=weekly(l.filter(live));
+  $("#view").innerHTML=`<div class="welcome"><div><div class="crumbs">${me.id} · ${esc(me.category)}</div><h1>Welcome back, ${esc(me.contact.split(" ")[0])}</h1><div class="script">${esc(me.name)} – supplying the Maxol network.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-ghost" href="#v-products">Update stock</a><a class="btn btn-primary" href="#v-orders" onclick="VOS.tab='Approved'">Dispatch orders</a></div></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+   <div class="card kpi hero-kpi"><div class="lbl">Ready to dispatch</div><div class="val">${ready.length}</div><div class="delta up">Approved by Maxol</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--swirl-purple)"></span><div class="lbl">Out for delivery</div><div class="val">${out.length}</div><div class="delta ${late.length?"down":"dim"}">${late.length?late.length+" past the promised date":"All on schedule"}</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--swirl-orange)"></span><div class="lbl">Awaiting Maxol approval</div><div class="val">${pend.length}</div><div class="delta dim">Coming your way soon</div></div>
+   <div class="card kpi"><span class="bar" style="background:var(--ok)"></span><div class="lbl">On-time delivery · 90 days</div><div class="val">${pct(ot)}</div><div class="delta ${ot>=.95?"up":"down"}">Maxol target 95%</div></div>
+  </div>
+  <div class="grid cols-2-1" style="margin-top:18px">
+   <div class="card">${headC("Orders received by week","Last 12 weeks · line shows units")}<div class="card-b"><div class="chart-box"><canvas id="c1"></canvas></div></div></div>
+   <div class="card">${headC("Needs attention","")}<div class="card-b"><div class="alert-list">
+    <a class="alert" href="#v-orders" onclick="VOS.tab='Approved'" style="text-decoration:none;color:inherit"><span class="dot" style="background:var(--maxol-blue)"></span><div><b>${ready.length} order${ready.length===1?"":"s"} ready to dispatch</b><span>${ready.filter(o=>(TODAY-o.date)/DAY>1).length} approved more than a day ago</span></div></a>
+    <a class="alert" href="#v-orders" onclick="VOS.tab='Dispatched'" style="text-decoration:none;color:inherit"><span class="dot" style="background:var(--bad)"></span><div><b>${late.length} deliver${late.length===1?"y":"ies"} running late</b><span>${late.length?"Update the retailer and mark delivered when received":"Nothing late right now"}</span></div></a>
+    <a class="alert" href="#v-products" style="text-decoration:none;color:inherit"><span class="dot" style="background:var(--swirl-orange)"></span><div><b>${low.length} product${low.length===1?"":"s"} low on stock</b><span>${low.map(p=>p.name).slice(0,2).join(", ")||"Stock levels look healthy"}</span></div></a>
+   </div></div></div>
+  </div>
+  <div class="grid cols-2-1" style="margin-top:18px">
+   <div class="card">${headC("Ready to dispatch","Approved orders waiting for you",`<a class="btn btn-ghost btn-sm" href="#v-orders" onclick="VOS.tab='Approved'">All orders</a>`)}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap">${orderTable(ready.slice(0,8),{hideVendor:true,expected:true})}</div></div></div>
+   <div class="card">${headC("Top retailers","Units ordered, last 90 days")}<div class="card-b"><div class="chart-box"><canvas id="c2"></canvas></div></div></div>
+  </div>`;
+  bindOrderRows();chartDefaults();
+  chart("c1",{data:{labels:w.labels,datasets:[{type:"bar",label:"Orders",data:w.n,backgroundColor:me.color,borderRadius:6,yAxisID:"y"},{type:"line",label:"Units",data:w.u,borderColor:cssv("--maxol-yellow"),backgroundColor:cssv("--maxol-yellow"),tension:.35,yAxisID:"y1",borderWidth:3}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}},y1:{position:"right",beginAtZero:true,grid:{display:false}},x:{grid:{display:false}}}}});
+  const byR={};l.filter(o=>live(o)&&o.date>=new Date(TODAY-90*DAY)).forEach(o=>byR[o.retailer]=(byR[o.retailer]||0)+units(o));const top=Object.entries(byR).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  chart("c2",{type:"bar",data:{labels:top.map(t=>R_BY[t[0]].name.replace("Maxol ","")),datasets:[{data:top.map(t=>t[1]),backgroundColor:cssv("--maxol-blue"),borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+" units"}}},scales:{y:{grid:{display:false}}}}});
+}
+const VOS={tab:"Approved",q:"",sel:new Set(),limit:25};
+function renderVOrders(){
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Fulfilment</div><h1>Orders to fulfil</h1><p>Maxol approves each order before it reaches you. Dispatch, add tracking and confirm delivery here.</p></div><button class="btn btn-ghost" onclick="toast('Pick list PDF downloads in the live system')">Download pick list</button></div>
+  <div class="card"><div class="toolbar"><div class="tabs" id="votabs" role="tablist"></div></div><div class="toolbar"><input class="input grow" id="voq" placeholder="Search by order no., PO or retailer" value="${esc(VOS.q)}"><span id="vobulk"></span></div><div class="tbl-wrap" id="votable"></div><div class="pager" id="vopager"></div></div>`;
+  $("#voq").oninput=e=>{VOS.q=e.target.value;VOS.limit=25;drawVOrders()};drawVOrders();
+}
+const VTABS=[["Approved","Ready to dispatch"],["Dispatched","Out for delivery"],["Pending","Awaiting approval"],["Delivered","Delivered"],["Cancelled","Cancelled"],["All","All"]];
+function drawVOrders(){const q=VOS.q.toLowerCase();const base=vOrders().filter(o=>!q||(o.no+o.po+R_BY[o.retailer].name+R_BY[o.retailer].code).toLowerCase().includes(q));
+  $("#votabs").innerHTML=VTABS.map(t=>`<button role="tab" aria-selected="${VOS.tab===t[0]}" data-t="${t[0]}">${t[1]}<span class="n">${t[0]==="All"?base.length:base.filter(o=>o.status===t[0]).length}</span></button>`).join("");
+  $("#votabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{VOS.tab=b.dataset.t;VOS.sel.clear();VOS.limit=25;drawVOrders()});
+  const list=VOS.tab==="All"?base:base.filter(o=>o.status===VOS.tab);const sel=VOS.tab==="Approved";
+  $("#votable").innerHTML=orderTable(list.slice(0,VOS.limit),{hideVendor:true,expected:true,select:sel,selected:VOS.sel});bindOrderRows();
+  $("#vobulk").innerHTML=sel?`<button class="btn btn-blue" ${VOS.sel.size?"":"disabled"} onclick="openDispatch([...VOS.sel])">Mark ${VOS.sel.size||""} selected as dispatched</button>`:"";
+  document.querySelectorAll("[data-sel]").forEach(c=>c.onchange=()=>{c.checked?VOS.sel.add(c.dataset.sel):VOS.sel.delete(c.dataset.sel);drawVOrders()});
+  const all=$("#selAll");if(all){all.checked=list.length&&list.slice(0,VOS.limit).every(o=>VOS.sel.has(o.no));all.onchange=()=>{list.slice(0,VOS.limit).forEach(o=>all.checked?VOS.sel.add(o.no):VOS.sel.delete(o.no));drawVOrders()}}
+  $("#vopager").innerHTML=`<span>Showing ${Math.min(list.length,VOS.limit)} of ${list.length} orders</span>${list.length>VOS.limit?`<button class="btn btn-ghost btn-sm" id="vomore">Show more</button>`:""}`;
+  const m=$("#vomore");if(m)m.onclick=()=>{VOS.limit+=25;drawVOrders()}}
+function openDispatch(nos){if(!nos.length)return;closeDrawer();const single=nos.length===1;
+  $("#modalBox").innerHTML=`<div class="drawer-h"><div><h2>Dispatch ${single?nos[0]:nos.length+" orders"}</h2><p class="dim" style="margin:4px 0 0">The retailer and Maxol are notified with the tracking details.</p></div><button class="iconbtn" onclick="closeModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="drawer-b"><div class="form-grid"><div class="field"><label for="dc">Courier</label><select class="select" id="dc"><option>An Post</option><option>DPD Ireland</option><option>Fastway Couriers</option><option>Own delivery van</option></select></div><div class="field"><label for="dd">Dispatch date</label><input class="input" id="dd" value="${fdate(TODAY)}"></div>
+  ${single?`<div class="field" style="grid-column:1/-1"><label for="dt">Tracking number</label><input class="input" id="dt" placeholder="Leave blank to generate one"></div>`:`<div style="grid-column:1/-1">${insight("A tracking number is generated for each order. You can edit them from each order later.")}</div>`}</div></div>
+  <div class="drawer-f"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="dgo">Confirm dispatch</button></div>`;
+  $("#modal").classList.add("open");$("#scrim").classList.add("open");
+  $("#dgo").onclick=()=>{const c=$("#dc").value;const t=single&&$("#dt").value.trim();nos.forEach(no=>{const o=orders.find(x=>x.no===no);o.status="Dispatched";o.courier=c;o.tracking=t||c.replace(/[^A-Z]/g,"")+ri(10000000,99999999)});VOS.sel.clear();closeModal();toast(single?`${nos[0]} marked as dispatched`:`${nos.length} orders marked as dispatched`);refreshView()}}
+function renderVProducts(){
+  const me=V_BY[ROLE.vid];const sold={};orders.filter(o=>live(o)&&o.vendor===me.id&&o.date>=new Date(TODAY-365*DAY)).forEach(o=>o.lines.forEach(l=>sold[l.sku]=(sold[l.sku]||0)+l.qty));
+  const mine=products.filter(p=>p.vendor===me.id);
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Fulfilment</div><h1>My products</h1><p>Keep stock levels current so retailers see what’s available.${me.free?" These items are supplied at no charge to Maxol sites.":" Price changes are sent to Maxol for approval."}</p></div><button class="btn btn-primary" onclick="toast('New products are sent to Maxol for approval')">+ Add product</button></div>
+  <div class="card"><div class="tbl-wrap"><table><thead><tr><th>Product</th><th class="num">Unit price</th><th class="num">Stock on hand</th><th class="num">Units ordered · 12 months</th><th>Availability</th></tr></thead><tbody>${mine.map(p=>`<tr><td><div class="strong">${esc(p.name)}</div><div class="dim" style="font-size:12.5px">${p.sku}${p.limit?` · max ${p.limit} per order`:""}</div></td><td class="num">${me.free?"No charge":`<input class="input" style="width:110px;text-align:right;min-height:36px;padding:6px 10px" data-price="${p.sku}" value="${p.price.toFixed(2)}" aria-label="Price for ${esc(p.name)}">`}</td><td class="num"><input class="input" style="width:100px;text-align:right;min-height:36px;padding:6px 10px" data-stock="${p.sku}" value="${p.stock}" inputmode="numeric" aria-label="Stock for ${esc(p.name)}"></td><td class="num">${(sold[p.sku]||0).toLocaleString("en-IE")}</td><td>${p.stock<=0?badge("Cancelled").replace("Cancelled","Out of stock"):p.stock<25?badge("Pending").replace("Pending","Low stock"):badge("Delivered").replace("Delivered","In stock")}</td></tr>`).join("")}</tbody></table></div></div>`;
+  document.querySelectorAll("[data-stock]").forEach(i=>i.onchange=()=>{const p=products.find(x=>x.sku===i.dataset.stock);p.stock=Math.max(0,parseInt(i.value)||0);toast(`Stock updated for ${p.name}`);refreshView()});
+  document.querySelectorAll("[data-price]").forEach(i=>i.onchange=()=>{const p=products.find(x=>x.sku===i.dataset.price);toast(`Price change for ${p.name} sent to Maxol for approval`)});
+}
+function renderVPerformance(){
+  const me=V_BY[ROLE.vid],l=vOrders(),lv=l.filter(live),del=l.filter(o=>o.status==="Delivered");
+  const lead=del.map(o=>(o.delivered-o.date)/DAY);const avg=lead.reduce((a,b)=>a+b,0)/(lead.length||1);
+  const bc=[0,0,0];del.forEach(o=>{const late=(o.delivered-o.promised)/DAY;bc[late<=0.5?0:late<=1.5?1:2]++});
+  const ot=onTime(l),cancel=l.length?l.filter(o=>o.status==="Cancelled").length/l.length:0;
+  const otm=MONTHS.map(m=>{const d=l.filter(o=>mkey(o.date)===mkey(m)&&o.status==="Delivered");return d.length?onTime(d)*100:null});
+  const vals=otm.filter(x=>x!==null);const bestM=otm.indexOf(Math.max(...vals)),worstM=otm.indexOf(Math.min(...vals));
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Insight</div><h1>Performance</h1><p>How ${esc(me.short)} is performing for Maxol retailers over the last 12 months. Maxol sees the same figures.</p></div><button class="btn btn-ghost" onclick="toast('Report PDF downloads in the live system')">Export PDF</button></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+   <div class="card kpi hero-kpi"><div class="lbl">On-time delivery</div><div class="val">${pct(ot)}</div><div class="delta up">Target 95%</div></div>
+   <div class="card kpi"><div class="lbl">Average order-to-delivery</div><div class="val">${avg.toFixed(1)} days</div><div class="delta dim">Standard lead time ${me.leadDays} days</div></div>
+   <div class="card kpi"><div class="lbl">Cancellation rate</div><div class="val">${pct(cancel)}</div></div>
+   <div class="card kpi"><div class="lbl">Retailers served</div><div class="val">${new Set(lv.map(o=>o.retailer)).size}<span class="dim" style="font-size:16px"> / ${retailers.length}</span></div></div>
+  </div>
+  <div style="margin-top:18px">${insight(`<b>${mlabel(MONTHS[bestM])}</b> was your best month for on-time delivery (${otm[bestM].toFixed(0)}%) and <b>${mlabel(MONTHS[worstM])}</b> your weakest (${otm[worstM].toFixed(0)}%). ${ot>=.95?"You’re meeting Maxol’s target.":"Getting above 95% puts you in Maxol’s preferred-supplier tier."}`)}</div>
+  <div class="grid cols-1-1" style="margin-top:18px">
+   <div class="card">${headC("On-time delivery by month","Share of orders arriving by the promised date")}<div class="card-b"><div class="chart-box"><canvas id="c1"></canvas></div></div></div>
+   <div class="card">${headC("Delivery against promised date","Number of delivered orders")}<div class="card-b"><div class="chart-box"><canvas id="c2"></canvas></div></div></div>
+  </div>
+  <div class="grid cols-1-1" style="margin-top:18px">
+   <div class="card">${headC("Units by product","Last 12 months")}<div class="card-b"><div class="chart-box"><canvas id="c3"></canvas></div></div></div>
+   <div class="card">${headC("Units by region","Last 12 months")}<div class="card-b"><div class="chart-box"><canvas id="c4"></canvas></div></div></div>
+  </div>`;
+  chartDefaults();
+  chart("c1",{type:"line",data:{labels:MONTHS.map(mlabel),datasets:[{label:"On time %",data:otm,spanGaps:true,borderColor:me.color,backgroundColor:me.color+"22",fill:true,tension:.35,borderWidth:3},{label:"Target 95%",data:MONTHS.map(()=>95),borderColor:cssv("--ink-3"),borderDash:[5,5],pointRadius:0,borderWidth:2}]},options:{scales:{y:{min:60,max:100,ticks:{callback:v=>v+"%"}},x:{grid:{display:false}}}}});
+  chart("c2",{type:"bar",data:{labels:["On time or early","Up to 1 day late","2+ days late"],datasets:[{data:bc,backgroundColor:[cssv("--ok"),cssv("--swirl-orange"),cssv("--swirl-red")],borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}}}}});
+  const bp={};lv.forEach(o=>o.lines.forEach(x=>bp[x.name]=(bp[x.name]||0)+x.qty));const ps=Object.entries(bp).sort((a,b)=>b[1]-a[1]);
+  chart("c3",{type:"bar",data:{labels:ps.map(p=>p[0]),datasets:[{data:ps.map(p=>p[1]),backgroundColor:me.color,borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+  const regs=[...new Set(retailers.map(r=>r.region))];
+  chart("c4",{type:"doughnut",data:{labels:regs,datasets:[{data:regs.map(g=>lv.filter(o=>R_BY[o.retailer].region===g).reduce((s,o)=>s+units(o),0)),backgroundColor:SC(),borderWidth:0}]},options:{cutout:"60%",plugins:{legend:{position:"right"}}}});
+}
+
+/* ---------- Admin: users & access ---------- */
+let USERS=null;const US={tab:"All",q:""};
+function getUsers(){if(USERS)return USERS;const r2=mulberry32(77);const ago=()=>new Date(TODAY.getTime()-Math.floor(r2()*14*DAY));
+  USERS=[{name:"Administrator",email:"admin@maxol-retail.example",portal:"Administrator",role:"Super administrator",org:"The Maxol Group",last:new Date(TODAY.getTime()-36e5),status:"Active"},{name:"Retail Operations",email:"retail.ops@maxol-retail.example",portal:"Administrator",role:"Order approver",org:"The Maxol Group",last:ago(),status:"Active"},{name:"Finance Team",email:"finance@maxol-retail.example",portal:"Administrator",role:"Reports only",org:"The Maxol Group",last:ago(),status:"Active"},
+   ...retailers.map(r=>({name:r.contact,email:r.email,portal:"Retailer",role:"Store manager",org:r.name,id:r.id,last:ago(),status:r.status==="Active"?"Active":"Suspended"})),
+   ...vendors.map(v=>({name:v.contact,email:"orders@"+v.short.toLowerCase().replace(/[^a-z]/g,"")+".example",portal:"Vendor",role:"Fulfilment",org:v.name,id:v.id,last:ago(),status:"Active"}))];return USERS}
+function renderUsers(){const U=getUsers();
+  const caps=[["Place orders","–","✓","–"],["Approve or cancel orders","✓","Cancel own pending","–"],["Dispatch and add tracking","✓","–","✓"],["Confirm delivery","✓","✓","✓"],["Manage products and stock","✓","–","Own products"],["Invoices and statements","✓","Own store","–"],["Reports and ROI","All","Own store","Own performance"],["Manage users","✓","Own store","–"]];
+  $("#view").innerHTML=`<div class="page-head"><div><div class="crumbs">Settings</div><h1>Users &amp; access</h1><p>Everyone who can sign in, across the three portals.</p></div><button class="btn btn-primary" onclick="toast('Invitation sent')">+ Invite user</button></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px"><div class="card kpi hero-kpi"><div class="lbl">Total users</div><div class="val">${U.length}</div></div>${["Administrator","Retailer","Vendor"].map((p,i)=>`<div class="card kpi"><span class="bar" style="background:${[cssv("--swirl-orange"),cssv("--swirl-red"),cssv("--swirl-purple")][i]}"></span><div class="lbl">${p} portal</div><div class="val">${U.filter(u=>u.portal===p).length}</div></div>`).join("")}</div>
+  <div class="grid">
+   <div class="card"><div class="toolbar"><div class="tabs" id="utabs"></div><input class="input grow" id="uq" placeholder="Search by name, email or organisation" value="${esc(US.q)}"></div><div class="tbl-wrap" id="utable"></div></div>
+   <div class="card">${headC("What each portal can do","Permissions by role")}<div class="card-b" style="padding:12px 0 0"><div class="tbl-wrap"><table><thead><tr><th>Action</th><th>Admin</th><th>Retailer</th><th>Vendor</th></tr></thead><tbody>${caps.map(c=>`<tr><td class="strong" style="white-space:normal">${c[0]}</td>${c.slice(1).map(x=>`<td style="white-space:normal;color:${x==="–"?"var(--ink-3)":"var(--ok)"};font-weight:700">${x}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div></div>
+  </div>`;
+  const draw=()=>{const q=US.q.toLowerCase();const base=U.filter(u=>!q||(u.name+u.email+u.org).toLowerCase().includes(q));
+   $("#utabs").innerHTML=["All","Administrator","Retailer","Vendor"].map(t=>`<button aria-selected="${US.tab===t}" data-t="${t}">${t}<span class="n">${t==="All"?base.length:base.filter(u=>u.portal===t).length}</span></button>`).join("");
+   $("#utabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{US.tab=b.dataset.t;draw()});
+   const l=US.tab==="All"?base:base.filter(u=>u.portal===US.tab);
+   $("#utable").innerHTML=`<table><thead><tr><th>User</th><th>Portal</th><th>Organisation</th><th>Role</th><th>Last login</th><th>Status</th><th></th></tr></thead><tbody>${l.map(u=>`<tr><td><div class="strong">${esc(u.name)}</div><div class="dim" style="font-size:12.5px">${u.email}</div></td><td>${u.portal}</td><td>${esc(u.org)}</td><td>${u.role}</td><td>${fdt(u.last)}</td><td>${badge(u.status)}</td><td>${u.id?`<button class="btn btn-ghost btn-sm" onclick="setRole('${u.portal==="Retailer"?"retailer":"vendor"}','${u.id}')">View portal</button>`:""}</td></tr>`).join("")}</tbody></table>`};
+  $("#uq").oninput=e=>{US.q=e.target.value;draw()};draw();
+}
+
+/* ================= GLOBAL SEARCH ================= */
+const gs=$("#gsearch"),gr=$("#gresults");
+gs.oninput=()=>{const q=gs.value.trim().toLowerCase();if(q.length<2){gr.classList.remove("open");return}
+  let res=[];
+  if(ROLE.role==="admin"){
+   res.push(...orders.filter(x=>x.no.toLowerCase().includes(q)||x.po.toLowerCase().includes(q)).slice(0,4).map(x=>`<button data-go="o:${x.no}"><b>${x.no}</b><small>${esc(R_BY[x.retailer].name)} · ${x.status}</small></button>`));
+   res.push(...retailers.filter(x=>(x.name+x.code+x.county).toLowerCase().includes(q)).slice(0,4).map(x=>`<button data-go="r:${x.id}"><b>${esc(x.name)}</b><small>Retailer · ${x.code}</small></button>`));
+   res.push(...vendors.filter(x=>x.name.toLowerCase().includes(q)).slice(0,3).map(x=>`<button data-go="v:${x.id}"><b>${esc(x.name)}</b><small>Vendor · ${x.category}</small></button>`));
+  }else{
+   const mine=ROLE.role==="retailer"?myOrders():vOrders();
+   res.push(...mine.filter(x=>(x.no+x.po+R_BY[x.retailer].name).toLowerCase().includes(q)).slice(0,5).map(x=>`<button data-go="o:${x.no}"><b>${x.no}</b><small>${esc(ROLE.role==="retailer"?V_BY[x.vendor].short:R_BY[x.retailer].name)} · ${x.status}</small></button>`));
+   res.push(...products.filter(p=>(ROLE.role==="retailer"||p.vendor===ROLE.vid)&&p.name.toLowerCase().includes(q)).slice(0,4).map(p=>`<button data-go="p:${p.sku}"><b>${esc(p.name)}</b><small>Product · ${p.price?eur2(p.price):"No charge"}</small></button>`));
+  }
+  gr.innerHTML=res.length?res.join(""):`<div style="padding:12px 14px" class="dim">No matches for “${esc(gs.value)}”</div>`;gr.classList.add("open");
+  gr.querySelectorAll("button").forEach(b=>b.onclick=()=>{const[t,id]=b.dataset.go.split(":");gr.classList.remove("open");gs.value="";
+   if(t==="o")openOrder(id);else if(t==="r")openRetailer(id);else if(t==="v")openVendor(id);else{const p=products.find(x=>x.sku===id);if(ROLE.role==="retailer"){SH.q=p.name;SH.v="";if(CUR==="r-shop")renderShop();else location.hash="r-shop"}else location.hash="v-products"}})};
+document.addEventListener("click",e=>{if(!e.target.closest(".search"))gr.classList.remove("open")});
+
+/* ================= SHELL ================= */
+$("#scrim").onclick=()=>{closeDrawer();closeModal();$("#side").classList.remove("open");$("#scrim").classList.remove("open")};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeDrawer();closeModal();$("#scrim").classList.remove("open")}});
+$("#menuBtn").onclick=()=>{$("#side").classList.add("open");$("#scrim").classList.add("open")};
+$("#themeBtn").onclick=()=>{const dark=document.documentElement.dataset.theme?document.documentElement.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.dataset.theme=dark?"light":"dark";try{localStorage.setItem("mx-theme",document.documentElement.dataset.theme)}catch(e){}route()};
+try{const t=localStorage.getItem("mx-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
+let LOGIN_ROLE="admin";
+function drawLoginRole(){document.querySelectorAll("#roleTabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.role===LOGIN_ROLE));
+  const f=$("#entityField");f.hidden=LOGIN_ROLE==="admin";
+  if(LOGIN_ROLE==="retailer"){$("#lentLbl").textContent="Store (demo)";$("#lent").innerHTML=retailers.filter(r=>r.status==="Active").map(r=>`<option value="${r.id}">${esc(r.name)} · ${r.code}</option>`).join("");$("#lent").value=ROLE.rid}
+  if(LOGIN_ROLE==="vendor"){$("#lentLbl").textContent="Vendor (demo)";$("#lent").innerHTML=vendors.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join("");$("#lent").value=ROLE.vid}}
+document.querySelectorAll("#roleTabs button").forEach(b=>b.onclick=()=>{LOGIN_ROLE=b.dataset.role;drawLoginRole()});
+$("#loginForm").onsubmit=e=>{e.preventDefault();$("#login").style.display="none";try{sessionStorage.setItem("mx-in","1")}catch(e){}setRole(LOGIN_ROLE,LOGIN_ROLE==="admin"?null:$("#lent").value)};
+$("#logoutBtn").onclick=()=>{try{sessionStorage.removeItem("mx-in")}catch(e){}LOGIN_ROLE=ROLE.role;drawLoginRole();$("#login").style.display="";};
+$("#portalSel").onchange=e=>setRole(e.target.value);
+$("#cartBtn").onclick=openCart;
+drawLoginRole();buildNav();
+try{if(sessionStorage.getItem("mx-in")){$("#login").style.display="none"}}catch(e){}
+route();
+</script>
+</body>
+</html>
